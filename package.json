@@ -1,0 +1,14 @@
+{
+  "name": "contentverse",
+  "version": "1.0.0",
+  "description": "a cms with headless api and frontend for managing dynamic content.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Boby Tiwari",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
