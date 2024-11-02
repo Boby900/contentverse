@@ -1,19 +1,18 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const cors = require('cors');
+const PORT = 3000
+const mainRoutes = require("./routes/main")
+const userRoutes = require("./routes/user");
 
-app.get('/', (req, res) => {
-  res.send('Hello Worlds!')
-})
-app.post('/', (req, res) => {
-  res.send('Got a POST request')
-})
-app.put('/user', (req, res) => {
-  res.send('Got a PUT request at /user')
-})
-app.delete('/user', (req, res) => {
-  res.send('Got a DELETE request at /user')
-})
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+app.use(cors()); // Enable CORS for cross-origin requests from React frontend
+app.use(express.json()); // Parse JSON bodies
+
+app.use("/", mainRoutes);
+app.use("/user", userRoutes);
+
+
+//Server Running
+app.listen(PORT, () => {
+  console.log(`Server is running at ${PORT}, you better catch it!`);
+});
