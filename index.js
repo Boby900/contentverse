@@ -2,7 +2,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors');
-const PORT = 3000
+require("dotenv").config({ path: "./config/.env" });
 const mainRoutes = require("./routes/main")
 const userRoutes = require("./routes/user");
 
@@ -15,6 +15,6 @@ app.use("/user", userRoutes);
 
 
 //Server Running
-app.listen(PORT, () => {
-  console.log(`Server is running at ${PORT}, you better catch it!`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running at ${process.env.PORT}, you better catch it!`);
 });
