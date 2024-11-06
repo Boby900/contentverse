@@ -18,7 +18,7 @@ app.use(express.json()); // Parse JSON bodies
 app.use('/', mainRoutes);
 app.use('/user', userRoutes);
 
-// Start the server
+// Start the servers
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running at ${process.env.PORT}, you better catch it!`);
 });
