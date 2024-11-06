@@ -2,15 +2,32 @@
   "name": "contentverse",
   "version": "1.0.0",
   "description": "a cms with headless api and frontend for managing dynamic content.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "node --loader=ts-node/esm --env-file=.env --watch src/index.ts",
+    "build": "npx tsc",
+    "start": "node --env-file=.env dist/index.js"
   },
   "author": "Boby Tiwari",
   "license": "MIT",
   "dependencies": {
+    "@neondatabase/serverless": "^0.10.1",
+    "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "express": "^4.21.1"
-  }
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.36.0",
+    "express": "^4.21.1",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.10",
+    "drizzle-kit": "^0.27.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.6.3"
+  },
+  "type": "module"
 }
