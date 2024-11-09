@@ -4,7 +4,7 @@
   "description": "a cms with headless api and frontend for managing dynamic content.",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "node --loader=ts-node/esm --watch src/index.ts",
+    "dev": "node --loader=ts-node/esm --watch src/index.ts && src/auth/index.ts",
     "build": "npx tsc",
     "start": "node dist/index.js"
   },
