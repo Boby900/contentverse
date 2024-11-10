@@ -4,7 +4,7 @@
   "description": "a cms with headless api and frontend for managing dynamic content.",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "node --loader=ts-node/esm --watch src/index.ts",
+    "dev": "node --loader=ts-node/esm --watch src/index.ts && src/auth/index.ts",
     "build": "npx tsc",
     "start": "node dist/index.js"
   },
@@ -12,6 +12,8 @@
   "license": "MIT",
   "dependencies": {
     "@neondatabase/serverless": "^0.10.1",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

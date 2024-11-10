@@ -1,1 +1,0 @@
-ALTER TABLE "users_table" ALTER COLUMN "id" SET DEFAULT 1;

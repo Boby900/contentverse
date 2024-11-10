@@ -7,7 +7,10 @@
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true, //commenting this will throw the error related to the Drizzle.
+
+    "skipLibCheck": true, //uncommenting this will not throw any error of 3rd party
+
+
     "rootDir": "./src",
     "outDir": "./dist",    
   },
