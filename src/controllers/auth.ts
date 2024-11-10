@@ -14,8 +14,10 @@ export const generateSessionToken = (req: Request, res: Response, next: NextFunc
     
 }
 
-const createSession = async(token: string, userId: number): Promise<Session>=>{
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+const createSession = async(token: string, userId: number): Promise<Session | null>=>{
+	
+	try {
+		const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const session: Session = {
 		id: sessionId,
 		userId,
@@ -25,6 +27,12 @@ const createSession = async(token: string, userId: number): Promise<Session>=>{
 	console.log(session)
 
 	return session;
+	} catch (error) {
+		console.error(error)
+		return null
+	}
+
+	
 
 }
 
@@ -38,9 +46,6 @@ export const createSessionHandler = async (req: Request, res: Response, next: Ne
         next(error);  // Handle errors through Express middleware
     }
 };
-// export async function createSession(token: string, userId: number): Promise<Session> {
-// 	// TODO
-// }
 
 // export async function validateSessionToken(token: string): Promise<SessionValidationResult> {
 // 	// TODO
