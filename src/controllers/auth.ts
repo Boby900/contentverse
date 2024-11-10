@@ -5,6 +5,32 @@ import { Response, Request, NextFunction } from "express";
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
 
+
+export const signupHandler = async (req: Request, res: Response) => {
+  // Logic for user registration
+  res.status(201).send("hi signing up")
+};
+
+export const loginHandler = async (req: Request, res: Response) => {
+  // Logic for user login and session creation
+  res.status(201).send("hi login up")
+
+};
+
+export const logoutHandler = async (req: Request, res: Response) => {
+  // Logic for user logout
+  res.status(201).send("hi loging out")
+
+};
+
+
+
+
+
+
+
+
+
 export const generateSessionToken = (req: Request, res: Response, next: NextFunction) =>{
 	const bytes = new Uint8Array(20);
 	crypto.getRandomValues(bytes);
