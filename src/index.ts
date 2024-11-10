@@ -4,7 +4,6 @@ import express from 'express';
 // import cors from 'cors';
 import dotenv from 'dotenv';
 import mainRoutes from './routes/main.js';
-import userRoutes from './routes/user.js';
 import authRoutes from './routes/auth.js';
 import contentRoutes from './routes/content.js';
 dotenv.config({ path: '.env' });
@@ -17,10 +16,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
 
 // Set up routes
-app.use('/', mainRoutes);
-app.use('/user', userRoutes);
-app.use('/auth', authRoutes)
-app.use('/content', contentRoutes)
+app.use('/api', mainRoutes);
+app.use('/api/auth', authRoutes)
+app.use('/api/content', contentRoutes)
 
 // Start the servers
 app.listen(process.env.PORT || 3000, () => {

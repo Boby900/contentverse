@@ -1,5 +1,4 @@
 import express from 'express';
-import {getHome} from '../controllers/main.js';
 import { generateSessionToken, createSessionHandler} from '../controllers/auth.js';
 
 const router = express.Router();
