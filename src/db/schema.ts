@@ -2,7 +2,7 @@ import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 import type { InferSelectModel } from "drizzle-orm";
 export const userTable = pgTable("user", {
   id: serial("id").primaryKey(),
-  email: text("email").notNull().unique(),     // For identifying users
+  email: text("email").notNull(),     // For identifying users
   password: text("password").notNull(),         // For storing hashed passwords
   createdAt: timestamp("created_at", {         // Optional: track account creation time
     withTimezone: true,
@@ -28,9 +28,10 @@ export const contentTable = pgTable("content", {
   title: text("title") 
 });
 //TODO:
-//implement some logic in the auth handler, ref => auth.ts
+//implement some logic in the logout handler, ref => auth.ts
 //learn more about middleware
-//test the auth in backend only, I guess using the header it's possible.
+//test the auth in backend only using Postman.
+//learn about headers in the request.
 
 export type User = InferSelectModel<typeof userTable>;
 export type Session = InferSelectModel<typeof sessionTable>;
