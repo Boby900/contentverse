@@ -1,8 +1,13 @@
 import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 import type { InferSelectModel } from "drizzle-orm";
-import { title } from "process";
 export const userTable = pgTable("user", {
   id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),     // For identifying users
+  password: text("password").notNull(),         // For storing hashed passwords
+  createdAt: timestamp("created_at", {         // Optional: track account creation time
+    withTimezone: true,
+    mode: "date",
+  }).defaultNow(),
 });
 
 export const sessionTable = pgTable("session", {
