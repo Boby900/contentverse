@@ -1,5 +1,6 @@
 import type {Session, User} from "../db/schema.js"
 import { sessionTable, userTable } from "../db/schema.js";
+import { eq } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { Response, Request, NextFunction } from "express";
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
@@ -7,8 +8,25 @@ import { sha256 } from "@oslojs/crypto/sha2";
 
 
 export const signupHandler = async (req: Request, res: Response) => {
-  // Logic for user registration
-  res.status(201).send("hi signing up")
+	
+		const { email, password } = req.body;
+	
+		// Check if user already exists
+		const existingUser = await db.select().from(userTable).where(eq(userTable.email, email));
+		console.log(existingUser)
+		// if (existingUser) {
+		// 	return res.status(409).json({ message: "User already exists" });
+		//   }
+	
+		// // Hash password (implement hashing logic with oslojs or other)
+		const hashedPassword = encodeHexLowerCase(sha256(new TextEncoder().encode(password)));
+	
+		// // Insert user into database
+		const newUser = await db.insert(userTable).values({ email, password: hashedPassword })
+	
+		res.status(201).json({ message: "User registered successfully", user: newUser});
+	
+	  
 };
 
 export const loginHandler = async (req: Request, res: Response) => {

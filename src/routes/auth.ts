@@ -8,4 +8,5 @@ router.post('/logout', logoutHandler);
 router.get('/', generateSessionToken);
 router.get('/createSession', createSessionHandler)
 
+  
 export default router;

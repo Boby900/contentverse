@@ -15,6 +15,13 @@
       "when": 1731307672800,
       "tag": "0001_jazzy_quicksilver",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731310130374,
+      "tag": "0002_common_daredevil",
+      "breakpoints": true
     }
   ]
 }
