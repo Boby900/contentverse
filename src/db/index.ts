@@ -1,12 +1,13 @@
-// Make sure to install the 'pg' package 
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import * as schema from "./schema"
+import { config } from "dotenv";
+config({ path: ".env" }); // or .env.local
+// uncommenting above lines will cause the error
+const sql = neon(process.env.DATABASE_URL!);
 
-// You can specify any property from the node-postgres connection options
-export const db = drizzle({ 
-  connection: { 
-    connectionString: process.env.DATABASE_URL,
-    ssl: true
-  }
-});
- 
 
+
+
+
+export const db = drizzle({ client: sql });
