@@ -94,9 +94,13 @@ const createSession = async (
 
 
 export const logoutHandler = async (req: Request, res: Response) => {
+  //TODO: even if it's not deleting anything from the db it's saying that logout succesful, so correct that.
   const { sessionToken } = req.body;
-  console.log({sessionToken})
-  const isInvalidated = await invalidateSession(sessionToken);
+  const token = encodeHexLowerCase(
+    sha256(new TextEncoder().encode(sessionToken))
+  );
+  console.log({sessionToken, token})
+  const isInvalidated = await invalidateSession(token);
   // Invalidate the session token
   
   if (isInvalidated) {
