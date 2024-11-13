@@ -8,7 +8,7 @@ import {
   encodeHexLowerCase,
 } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
-
+import crypto from "crypto";
 export const signupHandler = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
