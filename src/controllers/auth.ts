@@ -122,6 +122,10 @@ export const logoutHandler = async (req: Request, res: Response) => {
 export async function invalidateSession(sessionId: string): Promise<boolean> {
   try {
     const result = await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
+    if (result.rowCount == 0){
+      console.log('No session found with the provided ID.');
+      return false;
+    }
     console.log(sessionId)
     console.log("Delete result:", result);
     return true// Return true if deletion was successful
