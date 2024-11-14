@@ -1,7 +1,7 @@
 import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 import type { InferSelectModel } from "drizzle-orm";
 export const userTable = pgTable("user", {
-  id: serial("id").primaryKey(),
+  id: serial("id").primaryKey(),  // TODO: use randomevalues from crypto if possible, instead of generic numbers.
   email: text("email").notNull(),     // For identifying users
   password: text("password").notNull(),         // For storing hashed passwords
   createdAt: timestamp("created_at", {         // Optional: track account creation time
