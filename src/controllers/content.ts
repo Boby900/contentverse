@@ -3,7 +3,7 @@ import { db } from "../db/index.js";
 import { contentTable } from "../db/schema.js";
 import { randomUUID } from "crypto";
 
-import { eq, and, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export const createContent = async (
   req: Request,
