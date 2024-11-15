@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
-import { db } from "../db";
-import { contentTable } from "../db/schema";
+import { db } from "../db/index.js";
+import { contentTable } from "../db/schema.js";
 import { randomUUID } from "crypto";
 
 import { eq, and, sql } from "drizzle-orm";
