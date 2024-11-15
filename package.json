@@ -4,7 +4,7 @@
   "description": "a cms with headless api and frontend for managing dynamic content.",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "node --loader=ts-node/esm --watch src/index.ts && src/auth/index.ts",
+     "dev": "tsx watch src/index.ts",
     "build": "npx tsc",
     "start": "node dist/index.js"
   },
@@ -29,6 +29,7 @@
     "drizzle-kit": "^0.27.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   },
   "type": "module"
