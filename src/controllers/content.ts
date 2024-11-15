@@ -47,8 +47,8 @@ export const getContentByID = async (
     .select()
     .from(contentTable)
     .where(eq(contentTable.id, id));
-console.log(data)
-res.status(201).send("Hello getContentByID!");
+  console.log(data);
+  res.status(201).send("Hello getContentByID!");
 };
 
 export const updateContentByID = async (
@@ -64,16 +64,13 @@ export const deleteContentByID = async (
   res: Response,
   next: NextFunction
 ) => {
-    const { id } = req.body;
+  const { id } = req.body;
 
-    const data = await db
-      .delete(contentTable)
-      .where(eq(contentTable.id, id));
-    if(data.rowCount == 1){
-        console.log('deleted...')
-        res.status(201).send("Hello deleteContentByID!");
-    }
-      else{
-        res.status(401).send("error while deleting.")
-      }
+  const data = await db.delete(contentTable).where(eq(contentTable.id, id));
+  if (data.rowCount == 1) {
+    console.log("deleted...");
+    res.status(201).send("Hello deleteContentByID!");
+  } else {
+    res.status(401).send("error while deleting.");
+  }
 };
