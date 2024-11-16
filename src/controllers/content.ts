@@ -2,7 +2,6 @@ import { Response, Request, NextFunction } from "express";
 import { db } from "../db/index.js";
 import { contentTable } from "../db/schema.js";
 import { randomUUID } from "crypto";
-
 import { eq } from "drizzle-orm";
 
 export const createContent = async (
@@ -10,7 +9,7 @@ export const createContent = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { title, userId } = req.body;
+  const { title, userId} = req.body;
 
   try {
     const data = await db.insert(contentTable).values({
@@ -18,10 +17,11 @@ export const createContent = async (
       title: title,
       userId: userId,
     });
-    res.status(201).send("Hello createContent!");
+    console.log(data)
+    
   } catch (error) {
     console.log(error);
-    res.status(401).send("error while calling this endpoint!");
+   
   }
 };
 
@@ -33,7 +33,7 @@ export const getAllContent = async (
   const data = await db.select().from(contentTable);
 
   console.log(data);
-  res.status(201).send("Hello getAllContent!");
+  // res.send("Hello getAllContent!");
 };
 
 export const getContentByID = async (

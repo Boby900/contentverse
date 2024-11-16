@@ -131,17 +131,29 @@ export async function invalidateSession(sessionId: string): Promise<boolean> {
   }
 }
 
-export async function validateSessionTokenHandler(req: Request, res: Response) {
-  const { sessionToken } = req.body;
-  const validated = await validateSessionToken(sessionToken);
-  if (validated) {
+export async function validateSessionTokenHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const token = req.headers["token"] as string;
+
+  // Check if the Authorization header exists and starts with 'Bearer '
+  // "token": "bdn6skomqlqf2hj2pskjqeklhzeub236"
+
+  const validated = await validateSessionToken(token);
+  console.log(validated);
+  if (!validated.session || !validated.user || !token) {
     res.json({
-      message: "validated successfully",
+      message: "Token validation failed",
+    });
+  } else {
+    res.json({
+      message: "Token validated successfully",
       session: validated.session,
       user: validated.user,
     });
-  } else {
-    res.status(400).json({ message: "not able to validate successfully" });
+    next();
   }
 }
 
