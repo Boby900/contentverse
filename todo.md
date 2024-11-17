@@ -5,8 +5,7 @@
 3. use Tanstack start for the frontend framework.
 4. add email services to greet the users, could be like welcome to contentverse when they sign up.
 5. add the next() middleware for some protected routes.
-6. add some mocktests using the vitest for checking the endpoints.
-7. add the GitHub's auth.
-8. extract /:id from the URL params instead of passing it from body for the content routes.
+6. add the GitHub's auth.
+7. add some mocktests using the vitest for checking the endpoints.
 
 

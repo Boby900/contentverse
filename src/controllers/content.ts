@@ -17,7 +17,7 @@ export const createContent = async (
       title: title,
       userId: userId,
     });
-    console.log(data)
+  
     
   } catch (error) {
     console.log(error);
@@ -65,7 +65,6 @@ export const deleteContentByID = async (
   next: NextFunction
 ) => {
   const { id } = req.params;
-  console.log(id)
   const data = await db.delete(contentTable).where(eq(contentTable.id, id));
   if (data.rowCount == 1) {
     console.log("deleted...");
