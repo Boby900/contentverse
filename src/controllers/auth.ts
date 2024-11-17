@@ -142,7 +142,7 @@ export async function validateSessionTokenHandler(
   // "token": "bdn6skomqlqf2hj2pskjqeklhzeub236"
 
   const validated = await validateSessionToken(token);
-  console.log(validated);
+ 
   if (!validated.session || !validated.user || !token) {
     res.json({
       message: "Token validation failed",

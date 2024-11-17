@@ -41,14 +41,14 @@ export const getContentByID = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.body;
+  const { id } = req.params;
 
   const data = await db
     .select()
     .from(contentTable)
     .where(eq(contentTable.id, id));
   console.log(data);
-  res.status(201).send("Hello getContentByID!");
+
 };
 
 export const updateContentByID = async (
@@ -56,7 +56,7 @@ export const updateContentByID = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.body);
+  console.log(req.params);
   res.status(201).send("Hello updateContentByID!");
 };
 export const deleteContentByID = async (
@@ -64,13 +64,13 @@ export const deleteContentByID = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.body;
-
+  const { id } = req.params;
+  console.log(id)
   const data = await db.delete(contentTable).where(eq(contentTable.id, id));
   if (data.rowCount == 1) {
     console.log("deleted...");
-    res.status(201).send("Hello deleteContentByID!");
+  
   } else {
-    res.status(401).send("error while deleting.");
+    console.log("error while deleting.")
   }
 };
