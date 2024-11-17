@@ -51,15 +51,13 @@ export const loginHandler = async (req: Request, res: Response) => {
   );
   if (user.length < 1 || user[0].password !== hashedPassword) {
     res.status(401).json({ message: "Invalid email or password" });
-  }
-  else{
- // Generate session token
- const token = generateSessionToken();
- await createSession(token, user[0].id);
+  } else {
+    // Generate session token
+    const token = generateSessionToken();
+    await createSession(token, user[0].id);
 
- res.status(200).json({ message: "Logged in successfully", token });
+    res.status(200).json({ message: "Logged in successfully", token });
   }
- 
 };
 
 // 3kx6q4doy6tomxz5t2nf27yrj2v5uhwo
@@ -92,91 +90,100 @@ const createSession = async (
   }
 };
 
-
 export const logoutHandler = async (req: Request, res: Response) => {
-  //TODO: even if it's not deleting anything from the db it's saying that logout succesful, so correct that.
   const { sessionToken } = req.body;
   if (!sessionToken) {
-     res.status(404).json({ message: 'maybe you incorrectly typed sessionToken' });
-     console.log('maybe you incorrectly typed sessionToken')
-  }
-  else{
+    res
+      .status(404)
+      .json({ message: "maybe you incorrectly typed sessionToken" });
+    console.log("maybe you incorrectly typed sessionToken");
+  } else {
     const token = encodeHexLowerCase(
       sha256(new TextEncoder().encode(sessionToken))
     );
-    console.log({sessionToken, token})
+    console.log({ sessionToken, token });
     const isInvalidated = await invalidateSession(token);
     // Invalidate the session token
-    
+
     if (isInvalidated) {
-      
-        res.json({ message: 'Logout successful' });
+      res.json({ message: "Logout successful" });
     } else {
-        res.status(400).json({ message: 'Invalid session token' });
+      res.status(400).json({ message: "Invalid session token" });
     }
-
   }
-
 };
 
 export async function invalidateSession(sessionId: string): Promise<boolean> {
   try {
-    const result = await db.delete(sessionTable).where(eq(sessionTable.id, sessionId));
-    if (result.rowCount == 0){
-      console.log('No session found with the provided ID.');
+    const result = await db
+      .delete(sessionTable)
+      .where(eq(sessionTable.id, sessionId));
+    if (result.rowCount == 0) {
+      console.log("No session found with the provided ID.");
       return false;
     }
-    console.log(sessionId)
+    console.log(sessionId);
     console.log("Delete result:", result);
-    return true// Return true if deletion was successful
-} catch (error) {
-    console.error('Failed to invalidate session:', error);
+    return true; // Return true if deletion was successful
+  } catch (error) {
+    console.error("Failed to invalidate session:", error);
     return false; // Return false if an error occurred
-}
-}
-
-export async function validateSessionTokenHandler(req: Request, res: Response) {
-    const { sessionToken } = req.body
-    const validated = await validateSessionToken(sessionToken)
-    if (validated) {
-    
-      res.json({ message: 'validated successfully',
-        session: validated.session,
-      user: validated.user,
-       });
-  } else {
-      res.status(400).json({ message: 'not able to validate successfully' });
   }
 }
 
+export async function validateSessionTokenHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const token = req.headers["token"] as string;
 
+  // Check if the Authorization header exists and starts with 'Bearer '
+  // "token": "bdn6skomqlqf2hj2pskjqeklhzeub236"
 
-export async function validateSessionToken(token: string): Promise<SessionValidationResult> {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const result = await db
-		.select({ user: userTable, session: sessionTable })
-		.from(sessionTable)
-		.innerJoin(userTable, eq(sessionTable.userId, userTable.id))
-		.where(eq(sessionTable.id, sessionId));
-	if (result.length < 1) {
-		return { session: null, user: null };
-	}
-	const { user, session } = result[0];
-	if (Date.now() >= session.expiresAt.getTime()) {
-		await db.delete(sessionTable).where(eq(sessionTable.id, session.id));
-		return { session: null, user: null };
-	}
-	if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
-		session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
-		await db
-			.update(sessionTable)
-			.set({
-				expiresAt: session.expiresAt
-			})
-			.where(eq(sessionTable.id, session.id));
-	}
-	return { session, user };
-  
+  const validated = await validateSessionToken(token);
+  console.log(validated);
+  if (!validated.session || !validated.user || !token) {
+    res.json({
+      message: "Token validation failed",
+    });
+  } else {
+    res.json({
+      message: "Token validated successfully",
+      session: validated.session,
+      user: validated.user,
+    });
+    next();
+  }
+}
+
+export async function validateSessionToken(
+  token: string
+): Promise<SessionValidationResult> {
+  const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+  const result = await db
+    .select({ user: userTable, session: sessionTable })
+    .from(sessionTable)
+    .innerJoin(userTable, eq(sessionTable.userId, userTable.id))
+    .where(eq(sessionTable.id, sessionId));
+  if (result.length < 1) {
+    return { session: null, user: null };
+  }
+  const { user, session } = result[0];
+  if (Date.now() >= session.expiresAt.getTime()) {
+    await db.delete(sessionTable).where(eq(sessionTable.id, session.id));
+    return { session: null, user: null };
+  }
+  if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
+    session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+    await db
+      .update(sessionTable)
+      .set({
+        expiresAt: session.expiresAt,
+      })
+      .where(eq(sessionTable.id, session.id));
+  }
+  return { session, user };
 }
 
 export type SessionValidationResult =

@@ -2,15 +2,14 @@ import { Response, Request, NextFunction } from "express";
 import { db } from "../db/index.js";
 import { contentTable } from "../db/schema.js";
 import { randomUUID } from "crypto";
-
-import { eq, and, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export const createContent = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { title, userId } = req.body;
+  const { title, userId} = req.body;
 
   try {
     const data = await db.insert(contentTable).values({
@@ -18,10 +17,11 @@ export const createContent = async (
       title: title,
       userId: userId,
     });
-    res.status(201).send("Hello createContent!");
+    console.log(data)
+    
   } catch (error) {
     console.log(error);
-    res.status(401).send("error while calling this endpoint!");
+   
   }
 };
 
@@ -33,7 +33,7 @@ export const getAllContent = async (
   const data = await db.select().from(contentTable);
 
   console.log(data);
-  res.status(201).send("Hello getAllContent!");
+  // res.send("Hello getAllContent!");
 };
 
 export const getContentByID = async (
@@ -47,8 +47,8 @@ export const getContentByID = async (
     .select()
     .from(contentTable)
     .where(eq(contentTable.id, id));
-console.log(data)
-res.status(201).send("Hello getContentByID!");
+  console.log(data);
+  res.status(201).send("Hello getContentByID!");
 };
 
 export const updateContentByID = async (
@@ -64,16 +64,13 @@ export const deleteContentByID = async (
   res: Response,
   next: NextFunction
 ) => {
-    const { id } = req.body;
+  const { id } = req.body;
 
-    const data = await db
-      .delete(contentTable)
-      .where(eq(contentTable.id, id));
-    if(data.rowCount == 1){
-        console.log('deleted...')
-        res.status(201).send("Hello deleteContentByID!");
-    }
-      else{
-        res.status(401).send("error while deleting.")
-      }
+  const data = await db.delete(contentTable).where(eq(contentTable.id, id));
+  if (data.rowCount == 1) {
+    console.log("deleted...");
+    res.status(201).send("Hello deleteContentByID!");
+  } else {
+    res.status(401).send("error while deleting.");
+  }
 };

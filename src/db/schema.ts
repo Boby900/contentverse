@@ -27,11 +27,7 @@ export const contentTable = pgTable("content", {
     .references(() => userTable.id),
   title: text("title") 
 });
-//TODO:
-//implement some logic in the logout handler, ref => auth.ts
-//learn more about middleware
-//test the auth in backend only using Postman.
-//learn about headers in the request.
+
 
 export type User = InferSelectModel<typeof userTable>;
 export type Session = InferSelectModel<typeof sessionTable>;
