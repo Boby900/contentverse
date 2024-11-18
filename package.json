@@ -7,7 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "npx tsc",
     "start": "node dist/index.js",
-     "test": "vitest"
+    "test": "vitest"
   },
   "author": "Boby Tiwari",
   "license": "MIT",
@@ -28,6 +28,7 @@
     "@types/node": "^22.9.0",
     "@types/pg": "^8.11.10",
     "drizzle-kit": "^0.27.1",
+    "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.2",

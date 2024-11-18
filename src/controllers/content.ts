@@ -33,7 +33,7 @@ export const getAllContent = async (
   const data = await db.select().from(contentTable);
 
   console.log(data);
-  // res.send("Hello getAllContent!");
+  res.status(201).send("Hello getAllContent!");
 };
 
 export const getContentByID = async (
