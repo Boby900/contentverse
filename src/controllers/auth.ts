@@ -149,16 +149,11 @@ export async function validateSessionTokenHandler(
       });
       return
     }
-
+   
     // Attach session and user data to the request object
     req.session = validated.session; 
     req.user = validated.user;
 
-    // res.json({
-    //   message: "Token validated successfully",
-    //   session: validated.session,
-    //   user: validated.user,
-    // });
 
     next(); // Pass control to the next middleware/handler
   } catch (error) {
