@@ -9,19 +9,34 @@ export const createContent = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { title, userId} = req.body;
+  const { title, userId } = req.body;
 
   try {
+    if (!title || !userId) {
+     res.status(400).json({
+        status: "fail",
+        message: "Title and userId are required",
+      });
+      return 
+    }
+
     const data = await db.insert(contentTable).values({
       id: randomUUID(), // Generate a unique ID
       title: title,
       userId: userId,
     });
-  
-    
-  } catch (error) {
-    console.log(error);
-   
+    res.status(201).json({
+      status: "success",
+      message: "Content created successfully",
+      data: data,
+    });
+  } catch (error: unknown) {
+    console.error(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error while creating content",
+      error: error,
+    });
   }
 };
 
@@ -48,7 +63,6 @@ export const getContentByID = async (
     .from(contentTable)
     .where(eq(contentTable.id, id));
   console.log(data);
-
 };
 
 export const updateContentByID = async (
@@ -68,8 +82,7 @@ export const deleteContentByID = async (
   const data = await db.delete(contentTable).where(eq(contentTable.id, id));
   if (data.rowCount == 1) {
     console.log("deleted...");
-  
   } else {
-    console.log("error while deleting.")
+    console.log("error while deleting.");
   }
 };

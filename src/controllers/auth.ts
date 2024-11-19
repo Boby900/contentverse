@@ -136,26 +136,43 @@ export async function validateSessionTokenHandler(
   res: Response,
   next: NextFunction
 ) {
-  const token = req.headers["token"] as string;
+  try {
+    const token = req.headers["token"] as string;
 
-  // Check if the Authorization header exists and starts with 'Bearer '
-  // "token": "bdn6skomqlqf2hj2pskjqeklhzeub236"
+    // Validate the session token
+    const validated = await validateSessionToken(token);
 
-  const validated = await validateSessionToken(token);
- 
-  if (!validated.session || !validated.user || !token) {
-    res.json({
-      message: "Token validation failed",
+    if (!validated.session || !validated.user || !token) {
+      res.status(401).json({
+        status: "fail",
+        message: "Token validation failed",
+      });
+      return
+    }
+
+    // Attach session and user data to the request object
+    req.session = validated.session; 
+    req.user = validated.user;
+
+    // res.json({
+    //   message: "Token validated successfully",
+    //   session: validated.session,
+    //   user: validated.user,
+    // });
+
+    next(); // Pass control to the next middleware/handler
+  } catch (error) {
+    console.error("Error validating session token:", error);
+
+    // Return a generic error response
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error while validating session token",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
-  } else {
-    res.json({
-      message: "Token validated successfully",
-      session: validated.session,
-      user: validated.user,
-    });
-    next();
   }
 }
+
 
 export async function validateSessionToken(
   token: string
