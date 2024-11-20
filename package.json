@@ -4,9 +4,10 @@
   "description": "a cms with headless api and frontend for managing dynamic content.",
   "main": "dist/index.js",
   "scripts": {
-     "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/index.ts",
     "build": "npx tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test": "vitest"
   },
   "author": "Boby Tiwari",
   "license": "MIT",
@@ -27,10 +28,12 @@
     "@types/node": "^22.9.0",
     "@types/pg": "^8.11.10",
     "drizzle-kit": "^0.27.1",
+    "supertest": "^7.0.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
   },
   "type": "module"
 }

@@ -24,3 +24,4 @@ app.use('/api/content', contentRoutes)
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running at ${process.env.PORT}, you better catch it!`);
 });
+export default app

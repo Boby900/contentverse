@@ -9,15 +9,14 @@ import {
 } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
 import crypto from "crypto";
+
 export const signupHandler = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
   // Check if user already exists
   const existingUser = await db
     .select()
     .from(userTable)
     .where(eq(userTable.email, email));
-
   if (existingUser.length >= 1) {
     res.status(404).send({ message: "User already exists" });
   } else {
@@ -25,12 +24,10 @@ export const signupHandler = async (req: Request, res: Response) => {
     const hashedPassword = encodeHexLowerCase(
       sha256(new TextEncoder().encode(password))
     );
-
     // // Insert user into database
     const newUser = await db
       .insert(userTable)
       .values({ email, password: hashedPassword });
-
     res
       .status(201)
       .json({ message: "User registered successfully", user: newUser });
@@ -39,13 +36,11 @@ export const signupHandler = async (req: Request, res: Response) => {
 
 export const loginHandler = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
   // Find user by email
   const user = await db
     .select()
     .from(userTable)
     .where(eq(userTable.email, email));
-
   const hashedPassword = encodeHexLowerCase(
     sha256(new TextEncoder().encode(password))
   );
@@ -55,12 +50,9 @@ export const loginHandler = async (req: Request, res: Response) => {
     // Generate session token
     const token = generateSessionToken();
     await createSession(token, user[0].id);
-
     res.status(200).json({ message: "Logged in successfully", token });
   }
 };
-
-// 3kx6q4doy6tomxz5t2nf27yrj2v5uhwo
 function generateSessionToken(): string {
   const bytes = new Uint8Array(20);
   crypto.getRandomValues(bytes);
@@ -82,7 +74,6 @@ const createSession = async (
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
     };
     await db.insert(sessionTable).values(session);
-
     return session;
   } catch (error) {
     console.error(error);
@@ -104,7 +95,6 @@ export const logoutHandler = async (req: Request, res: Response) => {
     console.log({ sessionToken, token });
     const isInvalidated = await invalidateSession(token);
     // Invalidate the session token
-
     if (isInvalidated) {
       res.json({ message: "Logout successful" });
     } else {
@@ -136,24 +126,29 @@ export async function validateSessionTokenHandler(
   res: Response,
   next: NextFunction
 ) {
-  const token = req.headers["token"] as string;
-
-  // Check if the Authorization header exists and starts with 'Bearer '
-  // "token": "bdn6skomqlqf2hj2pskjqeklhzeub236"
-
-  const validated = await validateSessionToken(token);
- 
-  if (!validated.session || !validated.user || !token) {
-    res.json({
-      message: "Token validation failed",
+  try {
+    const token = req.headers["token"] as string;
+    // Validate the session token
+    const validated = await validateSessionToken(token);
+    if (!validated.session || !validated.user || !token) {
+      res.status(401).json({
+        status: "fail",
+        message: "Token validation failed",
+      });
+      return;
+    }
+    // Attach session and user data to the request object
+    req.session = validated.session;
+    req.user = validated.user;
+    next(); // Pass control to the next middleware/handler
+  } catch (error) {
+    console.error("Error validating session token:", error);
+    // Return a generic error response
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error while validating session token",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
-  } else {
-    res.json({
-      message: "Token validated successfully",
-      session: validated.session,
-      user: validated.user,
-    });
-    next();
   }
 }
 
