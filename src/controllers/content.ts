@@ -103,10 +103,32 @@ export const updateContentByID = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.params);
+    const { id } = req.params;
+    const { title } = req.body;
+    if(!title){
+      res.status(404).json({
+        status: "fail",
+        message:"no title provided"
+      })
+      return
+    }
+    const data = await db
+      .update(contentTable)
+      .set({"title": title })
+      .where(eq(contentTable.id, id))
+      .returning();
+ 
+      if (!data.length) {
+        res.status(404).json({
+          status: "fail",
+          message: `Content with ID ${id} not found`,
+        })
+      return
+      };
     res.status(200).json({
       status: "success",
       message: "Content updated successfully",
+      data: data,
     });
   } catch (error) {
     console.error(error);
