@@ -139,10 +139,11 @@ export const updateContentByID = async (
   } catch (error: unknown) {
     if (error instanceof ZodError) {
      
-     return res.status(400).json({
+    res.status(400).json({
         status: "fail",
         errors: error.errors, // Include detailed validation errors
       });
+      return
     }
     res.status(500).json({
       status: "error",
