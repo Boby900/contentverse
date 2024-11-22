@@ -16,15 +16,9 @@ export const createContent = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { title, userId } = req.body;
+
   try {
-    if (!title || !userId) {
-      res.status(400).json({
-        status: "fail",
-        message: "Title and userId are required",
-      });
-      return;
-    }
+    const { title, userId } = contentSchema.parse(req.body);
     await db.insert(contentTable).values({
       id: randomUUID(), // Generate a unique ID
       title: title,
@@ -35,12 +29,19 @@ export const createContent = async (
       message: "Content created successfully",
     });
   } catch (error: unknown) {
-    console.error(error);
+    if (error instanceof ZodError) {
+     
+      res.status(400).json({
+        status: "fail",
+        errors: error.errors, // Include detailed validation errors
+      });
+    }
     res.status(500).json({
       status: "error",
       message: "Internal server error while creating content",
       error: error,
     });
+    
   }
 };
 
@@ -110,15 +111,13 @@ export const updateContentByID = async (
   next: NextFunction
 ) => {
   try {
+    const validData = contentSchema.partial({
+      userId: true
+    })
     const { id } = req.params;
-    const { title } = req.body;
-    if(!title){
-      res.status(404).json({
-        status: "fail",
-        message:"no title provided"
-      })
-      return
-    }
+    const { title } =  validData.parse(req.body);
+    
+    
     const data = await db
       .update(contentTable)
       .set({"title": title })
@@ -137,13 +136,20 @@ export const updateContentByID = async (
       message: "Content updated successfully",
       data: data,
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+     
+     return res.status(400).json({
+        status: "fail",
+        errors: error.errors, // Include detailed validation errors
+      });
+    }
     res.status(500).json({
       status: "error",
-      message: "Internal server error while fetching content",
+      message: "Internal server error while creating content",
       error: error,
     });
+    
   }
 };
 export const deleteContentByID = async (
