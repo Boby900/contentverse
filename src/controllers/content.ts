@@ -3,6 +3,13 @@ import { db } from "../db/index.js";
 import { contentTable } from "../db/schema.js";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
+import { z, ZodError } from "zod";
+
+const contentSchema = z.object({
+  title: z.string().min(5),
+  userId: z.number(),
+});
+
 
 export const createContent = async (
   req: Request,
