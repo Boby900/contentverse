@@ -1,9 +1,8 @@
-import request from 'supertest';
-import app from '../src/index.js';
-import { expect, test, describe, it} from 'vitest'
-import { db } from '../src/db/index.js';
-import { userTable } from '../src/db/schema.js';
-
+import request from "supertest";
+import app from "../src/index.js";
+import { expect, test, describe, it } from "vitest";
+import { db } from "../src/db/index.js";
+import { userTable } from "../src/db/schema.js";
 
 //   describe('POST /logout', () => {
 //     it('should log out successfully', async () => {
@@ -23,61 +22,31 @@ import { userTable } from '../src/db/schema.js';
 //     });
 //   });
 
-  // describe('GET /content', () => {
-  //   it('should get all content successfully', async () => {
-  //     const response = await request(app)
-  //       .get('/api/content')
-  //       .send({ sessionToken: 'token123' });
+describe("GET /", () => {
+  it("should get home page", async () => {
+    const response = await request(app).get("/api/");
 
-  //     expect(response.status).toBe(200);
-  //     expect(response.body).toEqual({ message: 'Hello getAllContent!' });
-  //   });
-  // });
- 
- 
-  // describe('POST /content', () => {
-  //   it('should create content successfully', async () => {
-  //     const response = await request(app)
-  //       .post('/api/content')
-  //       .send({ title:"test-check",
-  //             userId: "2"
-  //       });
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: "Hello World!" });
+  });
+});
 
-  //     expect(response.status).toBe(200);
-  //     expect(response.body).toEqual({ message: 'Hello createContent!' });
-  //   });
-  // });
+describe("GET /content", () => {
+  it("should get all the contents", async () => {
+    const response = await request(app).get("/api/content");
 
-  // describe('POST /auth', () => {
-  //   it('should create content successfully', async () => {
-  //     await db.insert(userTable).values({
-  //       email: "test@gmail.com",
-  //               password: "bob-bob"
-  //     })
-  //     const response = await request(app)
-  //       .post('/api/auth/signup')
-  //       .send({ email: "test@gmail.com",
-  //               password: "bob-bob"
-  //       });
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: "Hello World!" });
+  });
 
-  //     expect(response.status).toBe(201);
-  //     expect(response.body).toEqual({ message: 'Hello createContent!' });
-  //   });
-  // });
+  it("should return 400 if required query parameters are missing", async () => {
+    const response = await request(app).get("/api/content?missingParam=true"); // Simulate a bad request
 
-
-  // describe('GET /dashboard', () => {
-  //   it('should return dashboard successfully', async () => {
-  //     const response = await request(app)
-  //       .get('/api/getProfile')
-       
-
-  //     expect(response.status).toBe(201);
-  //     expect(response.body).toEqual({ message: 'Hello Profile!' });
-  //   });
-
-   
-
-  //   });
-  
-
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty("status", "fail");
+    expect(response.body).toHaveProperty(
+      "message",
+      "Token validation failed"
+    );
+  });
+});

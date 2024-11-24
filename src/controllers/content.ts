@@ -5,6 +5,18 @@ import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { z, ZodError } from "zod";
 
+
+const { PinataSDK } = require("pinata")
+const fs = require("fs")
+const { Blob } = require("buffer")
+require("dotenv").config()
+
+const pinata = new PinataSDK({
+  pinataJwt: process.env.PINATA_JWT,
+  pinataGateway: process.env.GATEWAY_URL
+})
+
+
 const contentSchema = z.object({
   title: z.string().min(5),
   userId: z.number(),
@@ -185,3 +197,16 @@ export const deleteContentByID = async (
     });
   }
 };
+export const uploadFile = async(
+  req: Request,
+  res: Response,
+  next: NextFunction) =>{
+    try {
+      const blob = new Blob([fs.readFileSync("./hello-world.txt")]);
+      const file = new File([blob], "hello-world.txt", { type: "text/plain"})
+      const upload = await pinata.upload.file(file);
+      console.log(upload)
+    } catch (error) {
+      console.log(error)
+    }
+  }

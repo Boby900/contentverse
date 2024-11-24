@@ -10,6 +10,5 @@
 10. Add RBAC
 11. WebSocket using Socket.io for real-time updates take help from ChatGPT.
 12. Api documentation using the swagger or take help from AI.
-13. Validation and Sanitization using the Zod.
 14. add TRPC later instead of REST.
 15. create the same backend using the GO.
