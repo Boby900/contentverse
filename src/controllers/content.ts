@@ -4,13 +4,16 @@ import { contentTable } from "../db/schema.js";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { z, ZodError } from "zod";
+import dotenv from "dotenv"
+import { PinataSDK } from "pinata";
+import fs  from "fs";
 
 
-const { PinataSDK } = require("pinata")
-const fs = require("fs")
-const { Blob } = require("buffer")
-require("dotenv").config()
 
+// import { Blob } from "buffer";
+
+// require("dotenv").config()
+dotenv.config();
 const pinata = new PinataSDK({
   pinataJwt: process.env.PINATA_JWT,
   pinataGateway: process.env.GATEWAY_URL
@@ -202,11 +205,20 @@ export const uploadFile = async(
   res: Response,
   next: NextFunction) =>{
     try {
-      const blob = new Blob([fs.readFileSync("./hello-world.txt")]);
-      const file = new File([blob], "hello-world.txt", { type: "text/plain"})
+      const blob = new Blob([fs.readFileSync('bob.txt')]);
+      const file = new File([blob], "bob.txt", { type: "text/plain"})
       const upload = await pinata.upload.file(file);
       console.log(upload)
+      res.status(200).json({
+        status: "success",
+        message: "Content uploaded successfully",
+      });
     } catch (error) {
-      console.log(error)
+      console.error(error);
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error while fetching content",
+      error: error,
+    });
     }
   }
