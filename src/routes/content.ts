@@ -8,6 +8,6 @@ router.post('/', validateSessionTokenHandler, createContent);
 router.get('/:id', validateSessionTokenHandler, getContentByID)
 router.put('/:id', validateSessionTokenHandler, updateContentByID)
 router.delete('/:id', validateSessionTokenHandler, deleteContentByID)
-router.post('/upload', uploadFile)
+router.post('/upload',validateSessionTokenHandler, uploadFile)
 
 export default router;
