@@ -1,8 +1,9 @@
 // Import necessary modules
-// have a look at the drizzle forked repo, was getting an error when uncommenting the libcheck to true or maybe false, fix it atleast open an issue.
 import express from 'express';
 // import cors from 'cors';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import mainRoutes from './routes/main.js';
 import authRoutes from './routes/auth.js';
 import contentRoutes from './routes/content.js';
@@ -12,6 +13,7 @@ const app = express();
 
 // Enable CORS for cross-origin requests from the React frontend
 // app.use(cors());
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
 
@@ -19,9 +21,36 @@ app.use(express.json()); // Parse JSON bodies
 app.use('/api', mainRoutes);
 app.use('/api/auth', authRoutes)
 app.use('/api/content', contentRoutes)
+const server = createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Adjust this to your frontend's origin later
+    methods: ["GET", "POST"],
+  },
+});
+
+// Listen for Socket.IO connections
+io.on('connection', (socket) => {
+  console.log(`Client connected: ${socket.id}`);
+
+  // Listen for custom events
+  socket.on('message', (data) => {
+    console.log(`Received message: ${data}`);
+    // Broadcast the message to all connected clients
+    io.emit('message', `Echo: ${data}`);
+  });
+
+  // Handle client disconnection
+  socket.on('disconnect', () => {
+    console.log(`Client disconnected: ${socket.id}`);
+  });
+})
+
 
 // Start the servers
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server is running at ${process.env.PORT}, you better catch it!`);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server is running at ${PORT}, you better catch it!`);
 });
 export default app
