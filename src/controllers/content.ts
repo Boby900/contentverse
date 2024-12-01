@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 import { db } from "../db/index.js";
-import { contentTable } from "../db/schema.js";
+import { contentTable, mediaTable } from "../db/schema.js";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { z, ZodError } from "zod";
@@ -209,10 +209,20 @@ export const uploadFile = async(
       const file = new File([blob], "bob.txt", { type: "text/plain"})
       const upload = await pinata.upload.file(file);
       console.log(upload)
-      res.status(200).json({
-        status: "success",
-        message: "Content uploaded successfully",
-      });
+      const { userId } = req.body;
+    await db.insert(mediaTable).values({
+      id: randomUUID(),
+      userId: userId,
+      pinata_id: upload.id,
+      cid: upload.cid,
+      mime_type: upload.mime_type,
+      user_pinata_id: upload.user_id
+    });
+    res.status(201).json({
+      status: "success",
+      message: "Content uploaded successfully",
+    });
+ 
     } catch (error) {
       console.error(error);
     res.status(500).json({
