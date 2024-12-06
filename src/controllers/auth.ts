@@ -10,6 +10,7 @@ import {
 import { sha256 } from "@oslojs/crypto/sha2";
 import crypto from "crypto";
 import { z, ZodError } from "zod";
+import { sendEmail } from "../lib/mailService.js";
 
 const signupSchema = z.object({
   email: z.string().email().min(5),
@@ -32,6 +33,7 @@ export const signupHandler = async (req: Request, res: Response) => {
         sha256(new TextEncoder().encode(password))
       );
       // // Insert user into database
+      await sendEmail(email)
       const newUser = await db
         .insert(userTable)
         .values({ email, password: hashedPassword });
