@@ -13,7 +13,7 @@ const app = express();
 
 const allowedOrigin =
   process.env.NODE_ENV === 'production'
-    ? 'https://clientverse.vercel.app/'
+    ? 'https://clientverse.vercel.app'
     : 'http://localhost:5173';
 
 
