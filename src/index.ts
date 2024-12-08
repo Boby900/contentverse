@@ -1,6 +1,6 @@
 // Import necessary modules
 import express from 'express';
-// import cors from 'cors';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -11,12 +11,22 @@ dotenv.config({ path: '.env' });
 
 const app = express();
 
-// Enable CORS for cross-origin requests from the React frontend
-// app.use(cors());
+const allowedOrigin =
+  process.env.NODE_ENV === 'production'
+    ? 'https://contentverse-production.up.railway.app/'
+    : 'http://localhost:5173';
+
+
+
+const corsOptions = {
+  origin: allowedOrigin, // Allow requests from this origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Define allowed HTTP methods
+  credentials: true, // Allow cookies if needed
+};
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
-
+app.use(cors(corsOptions));
 // Set up routes
 app.use('/api', mainRoutes);
 app.use('/api/auth', authRoutes)
@@ -24,10 +34,7 @@ app.use('/api/content', contentRoutes)
 const server = createServer(app);
 
 const io = new Server(server, {
-  cors: {
-    origin: "*", // Adjust this to your frontend's origin later
-    methods: ["GET", "POST"],
-  },
+  cors:corsOptions
 });
 
 // Listen for Socket.IO connections
