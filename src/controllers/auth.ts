@@ -27,19 +27,27 @@ export const signupHandler = async (req: Request, res: Response) => {
       .where(eq(userTable.email, email));
     if (existingUser.length >= 1) {
       res.status(404).send({ message: "User already exists" });
+      return;
     } else {
       // // Hash password (implement hashing logic with oslojs or other)
       const hashedPassword = encodeHexLowerCase(
         sha256(new TextEncoder().encode(password))
       );
       // // Insert user into database
-      await sendEmail(email)
+     
       const newUser = await db
         .insert(userTable)
-        .values({ email, password: hashedPassword });
+        .values({ email, password: hashedPassword })
+        .returning({id: userTable.id})
+      
+      const token = generateSessionToken();
+      await createSession(token, newUser[0].id);
       res
         .status(201)
-        .json({ message: "User registered successfully", user: newUser });
+        .json({ message: "User registered successfully", token });
+         await sendEmail(email)
+        return;
+        
     }
   } catch (error) {
     if (error instanceof ZodError) {
