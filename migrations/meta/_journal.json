@@ -43,6 +43,13 @@
       "when": 1732697333326,
       "tag": "0005_fluffy_starfox",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1734186971858,
+      "tag": "0006_solid_starhawk",
+      "breakpoints": true
     }
   ]
 }
