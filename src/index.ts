@@ -7,6 +7,8 @@ import { Server } from 'socket.io';
 import mainRoutes from './routes/main.js';
 import authRoutes from './routes/auth.js';
 import contentRoutes from './routes/content.js';
+import cookieParser from 'cookie-parser';
+
 dotenv.config({ path: '.env' });
 
 const app = express();
@@ -26,6 +28,7 @@ const corsOptions = {
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
+app.use(cookieParser());  
 app.use(cors(corsOptions));
 // Set up routes
 app.use('/api', mainRoutes);

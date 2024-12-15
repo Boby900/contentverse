@@ -11,7 +11,7 @@ import { sha256 } from "@oslojs/crypto/sha2";
 import crypto from "crypto";
 import { z, ZodError } from "zod";
 import { sendEmail } from "../lib/mailService.js";
-
+import { setSessionTokenCookie, deleteSessionTokenCookie } from "./cookies.js";
 const signupSchema = z.object({
   email: z.string().email().min(5),
   password: z.string().min(5),
@@ -19,6 +19,7 @@ const signupSchema = z.object({
 
 export const signupHandler = async (req: Request, res: Response) => {
   try {
+  
     const { email, password } = signupSchema.parse(req.body);
     // Check if user already exists
     const existingUser = await db
@@ -34,20 +35,23 @@ export const signupHandler = async (req: Request, res: Response) => {
         sha256(new TextEncoder().encode(password))
       );
       // // Insert user into database
-     
+
       const newUser = await db
         .insert(userTable)
         .values({ email, password: hashedPassword })
-        .returning({id: userTable.id})
-      
+        .returning({ id: userTable.id });
+
       const token = generateSessionToken();
-      await createSession(token, newUser[0].id);
-      res
-        .status(201)
-        .json({ message: "User registered successfully", token });
-         await sendEmail(email)
+      const session = await createSession(token, newUser[0].id);
+      if (!session) {
+        res.status(500).json({ message: "Failed to create session" });
         return;
-        
+      }
+      setSessionTokenCookie(res, token, session.expiresAt);
+      res.status(201).json({ message: "User registered successfully"});
+      await sendEmail(email);
+      
+      return;
     }
   } catch (error) {
     if (error instanceof ZodError) {
@@ -75,8 +79,13 @@ export const loginHandler = async (req: Request, res: Response) => {
     } else {
       // Generate session token
       const token = generateSessionToken();
-      await createSession(token, user[0].id);
-      res.status(200).json({ message: "Logged in successfully", token });
+      const session = await createSession(token, user[0].id);
+      if (!session) {
+        res.status(500).json({ message: "Failed to create session" });
+        return;
+      }
+      setSessionTokenCookie(res, token, session.expiresAt);
+      res.status(200).json({ message: "Logged in successfully"});
     }
   } catch (error) {
     if (error instanceof ZodError) {
@@ -116,26 +125,31 @@ const createSession = async (
 };
 
 export const logoutHandler = async (req: Request, res: Response) => {
-  const { sessionToken } = req.body;
-  if (!sessionToken) {
-    res
-      .status(404)
-      .json({ message: "maybe you incorrectly typed sessionToken" });
-    console.log("maybe you incorrectly typed sessionToken");
-  } else {
-    const token = encodeHexLowerCase(
-      sha256(new TextEncoder().encode(sessionToken))
+  try{
+    const token = req.cookies?.session; // Retrieve session token from cookies
+    if (!token) {
+      res.status(400).json({ message: "No session token provided" });
+      return;
+    }
+    const encodedToken = encodeHexLowerCase(
+      sha256(new TextEncoder().encode(token))
     );
-    console.log({ sessionToken, token });
-    const isInvalidated = await invalidateSession(token);
-    // Invalidate the session token
+    const isInvalidated = await invalidateSession(encodedToken);
     if (isInvalidated) {
+      deleteSessionTokenCookie(res); // Delete cookie
       res.json({ message: "Logout successful" });
     } else {
       res.status(400).json({ message: "Invalid session token" });
     }
+
   }
-};
+  catch (error) {
+    console.error("Error during logout:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+    
+  }
+
 
 export async function invalidateSession(sessionId: string): Promise<boolean> {
   try {
@@ -146,8 +160,7 @@ export async function invalidateSession(sessionId: string): Promise<boolean> {
       console.log("No session found with the provided ID.");
       return false;
     }
-    console.log(sessionId);
-    console.log("Delete result:", result);
+    console.log("deleted session");
     return true; // Return true if deletion was successful
   } catch (error) {
     console.error("Failed to invalidate session:", error);
