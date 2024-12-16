@@ -3,13 +3,18 @@ import { sessionTable, userTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { Response, Request, NextFunction } from "express";
+import type { OAuth2Tokens } from "arctic";
+
 import {
   encodeBase32LowerCaseNoPadding,
   encodeHexLowerCase,
 } from "@oslojs/encoding";
+import { generateState } from "arctic";
+
 import { sha256 } from "@oslojs/crypto/sha2";
 import crypto from "crypto";
 import { z, ZodError } from "zod";
+import { github } from "../lib/github.js";
 import { sendEmail } from "../lib/mailService.js";
 import { setSessionTokenCookie, deleteSessionTokenCookie } from "./cookies.js";
 const signupSchema = z.object({
@@ -19,7 +24,6 @@ const signupSchema = z.object({
 
 export const signupHandler = async (req: Request, res: Response) => {
   try {
-  
     const { email, password } = signupSchema.parse(req.body);
     // Check if user already exists
     const existingUser = await db
@@ -48,9 +52,9 @@ export const signupHandler = async (req: Request, res: Response) => {
         return;
       }
       setSessionTokenCookie(res, token, session.expiresAt);
-      res.status(201).json({ message: "User registered successfully"});
+      res.status(201).json({ message: "User registered successfully" });
       await sendEmail(email);
-      
+
       return;
     }
   } catch (error) {
@@ -85,7 +89,7 @@ export const loginHandler = async (req: Request, res: Response) => {
         return;
       }
       setSessionTokenCookie(res, token, session.expiresAt);
-      res.status(200).json({ message: "Logged in successfully"});
+      res.status(200).json({ message: "Logged in successfully" });
     }
   } catch (error) {
     if (error instanceof ZodError) {
@@ -96,6 +100,104 @@ export const loginHandler = async (req: Request, res: Response) => {
     }
   }
 };
+
+export const githubHandler = async (req: Request, res: Response) => {
+  const state = generateState();
+  const url = github.createAuthorizationURL(state, []);
+
+  if (process.env.NODE_ENV === "production") {
+    // When deployed over HTTPS
+    res.setHeader(
+      "Set-Cookie",
+      `github_oauth_state=${state}; HttpOnly; SameSite=None; Max-Age=600; Path=/; Secure;`
+    );
+  } else {
+    // When deployed over HTTP (localhost)
+    res.setHeader(
+      "Set-Cookie",
+      `github_oauth_state=${state}; HttpOnly; SameSite=Lax; Max-Age=600; Path=/`
+    );
+  }
+  res.redirect(url.toString());
+};
+export const githubCallBack = async (req: Request, res: Response) => {
+  const url = new URL(req.url);
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const test = req.cookies["github_oauth_state"]
+  console.log(test)
+  const cookieStore = await cookies();
+  const storedState = cookieStore.get("github_oauth_state")?.value ?? null;
+  if (code === null || state === null || storedState === null) {
+    return new Response(null, {
+      status: 400,
+    });
+  }
+  if (state !== storedState) {
+    return new Response(null, {
+      status: 400,
+    });
+  }
+
+  let tokens: OAuth2Tokens;
+  try {
+    tokens = await github.validateAuthorizationCode(code);
+  } catch (e) {
+    // Invalid code or client credentials
+    return new Response(null, {
+      status: 400,
+    });
+  }
+  const githubUserResponse = await fetch("https://api.github.com/user", {
+    headers: {
+      Authorization: `Bearer ${tokens.accessToken()}`,
+    },
+  });
+  const githubUser = await githubUserResponse.json();
+  const githubUserId = githubUser.id;
+  const githubUsername = githubUser.login;
+
+  // TODO: Replace this with your own DB query.
+  const existingUser = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.githubId, githubUserId));
+
+  if (existingUser !== null) {
+    const sessionToken = generateSessionToken();
+    const session = await createSession(sessionToken, existingUser.id);
+    if (!session) {
+      return "some error while creating the session for the GH.";
+    }
+    await setSessionTokenCookie(res, sessionToken, session.expiresAt);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: "/",
+      },
+    });
+  }
+
+  // TODO: Replace this with your own DB query.
+
+  const user = await db
+    .insert(userTable)
+    .values({ githubId: githubUserId, username: githubUsername });
+
+  const sessionToken = generateSessionToken();
+  const session = await createSession(sessionToken, user.id);
+  if (!session) {
+    return "session not found when creating the GH session";
+  }
+  await setSessionTokenCookie(res, sessionToken, session.expiresAt);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/",
+    },
+  });
+};
+
 function generateSessionToken(): string {
   const bytes = new Uint8Array(20);
   crypto.getRandomValues(bytes);
@@ -125,7 +227,7 @@ const createSession = async (
 };
 
 export const logoutHandler = async (req: Request, res: Response) => {
-  try{
+  try {
     const token = req.cookies?.session; // Retrieve session token from cookies
     if (!token) {
       res.status(400).json({ message: "No session token provided" });
@@ -141,15 +243,11 @@ export const logoutHandler = async (req: Request, res: Response) => {
     } else {
       res.status(400).json({ message: "Invalid session token" });
     }
-
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error during logout:", error);
     res.status(500).json({ message: "Internal server error" });
   }
-    
-  }
-
+};
 
 export async function invalidateSession(sessionId: string): Promise<boolean> {
   try {
@@ -184,7 +282,7 @@ export async function validateSessionTokenHandler(
       });
       return;
     }
-    // Attach session and user data to the request object
+    // Attach session and user data to the req object
     req.session = validated.session;
     req.user = validated.user;
     next(); // Pass control to the next middleware/handler
