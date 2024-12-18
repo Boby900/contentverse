@@ -1,9 +1,12 @@
 import { pgTable, serial, text, integer, timestamp } from "drizzle-orm/pg-core";
 import type { InferSelectModel } from "drizzle-orm";
+import { number } from "zod";
 export const userTable = pgTable("user", {
   id: serial("id").primaryKey(),
-  email: text("email").notNull(),
-  password: text("password").notNull(),
+  email: text("email").unique(),
+  password: text("password"),
+  githubId: text("github_id"),
+	username: text("github_username"),
   createdAt: timestamp("created_at", {
     withTimezone: true,
     mode: "date",
