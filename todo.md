@@ -13,3 +13,4 @@
 17. use redis for the caching of apis.
 18. add some type of rate limiting.
 19. do stress testing for the db and server using the external library, ref => ChatGPT.
+15. display users photo instead of other in client when signing up using the GH.

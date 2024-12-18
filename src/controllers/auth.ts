@@ -121,12 +121,77 @@ export const githubHandler = async (req: Request, res: Response) => {
   res.redirect(url.toString());
 };
 
-export const githubCallBack = async (req: Request, res: Response): Promise<void> => {
-console.log(req)
-  // Send a response (e.g., confirming OAuth success)
-  res.json({ message: 'hello bob' });
-};
+export const githubCallBack = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const code = req.query.code;
+  const state = req.query.state;
+  const storedState = req.cookies.github_oauth_state;
 
+  if (typeof code !== 'string' || typeof state !== 'string') {
+    res.status(400).json({
+      message: "Invalid or missing query parameters.",
+    });
+    return;
+  } else if (state !== storedState) {
+    res.status(400).json({ message: "Invalid state parameter." });
+    return;
+  }
+
+  let tokens: OAuth2Tokens | null = null;
+
+  try {
+    tokens = await github.validateAuthorizationCode(code);
+  } catch (e) {
+    // Invalid code or client credentials
+    res.status(400).send("Invalid authorization code.");
+    return;
+  }
+  if (!tokens) {
+    res.status(400).send("Failed to retrieve tokens.");
+    return;
+  }
+  const githubUserResponse = await fetch("https://api.github.com/user", {
+    headers: {
+      Authorization: `Bearer ${tokens.accessToken()}`,
+    },
+  });
+  const githubUser = await githubUserResponse.json();
+  const githubUserId = githubUser.id;
+  const githubUsername = githubUser.login;
+  const existingUser = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.githubId, githubUserId));
+
+    if (existingUser.length >= 1) {
+      const sessionToken = generateSessionToken();
+      const session = await createSession(sessionToken, existingUser[0].id);
+      if (!session) {
+        res.status(500).json("some error while creating the session for the GH.");
+        return;
+      }
+      await setSessionTokenCookie(res, sessionToken, session.expiresAt);
+      res.status(200).send("Session created successfully for GitHub user.");
+      console.log(existingUser)
+      return; // Stop further execution
+    }    
+    const user = await db
+    .insert(userTable)
+    .values({ githubId: githubUserId, username: githubUsername })
+    .returning({id: userTable.id})
+    console.log(user);
+    const sessionToken = generateSessionToken();
+    const session = await createSession(sessionToken, user[0].id);
+    if (!session) {
+      res.status(500).json("some error while creating the session for the new GH user.");
+      return;
+    }
+    await setSessionTokenCookie(res, sessionToken, session.expiresAt);
+ 
+  
+};
 
 function generateSessionToken(): string {
   const bytes = new Uint8Array(20);
