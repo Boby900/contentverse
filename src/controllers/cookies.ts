@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { generateState } from "arctic";
-import { github } from "../lib/github";
+import { github } from "../lib/github.js";
 
 export function setSessionTokenCookie(response: Response, token: string, expiresAt:Date): void {
 	if (process.env.NODE_ENV === 'production') {
