@@ -120,83 +120,13 @@ export const githubHandler = async (req: Request, res: Response) => {
   }
   res.redirect(url.toString());
 };
-export const githubCallBack = async (req: Request, res: Response) => {
-  const url = new URL(req.url);
-  const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
-  const test = req.cookies["github_oauth_state"]
-  console.log(test)
-  const cookieStore = await cookies();
-  const storedState = cookieStore.get("github_oauth_state")?.value ?? null;
-  if (code === null || state === null || storedState === null) {
-    return new Response(null, {
-      status: 400,
-    });
-  }
-  if (state !== storedState) {
-    return new Response(null, {
-      status: 400,
-    });
-  }
 
-  let tokens: OAuth2Tokens;
-  try {
-    tokens = await github.validateAuthorizationCode(code);
-  } catch (e) {
-    // Invalid code or client credentials
-    return new Response(null, {
-      status: 400,
-    });
-  }
-  const githubUserResponse = await fetch("https://api.github.com/user", {
-    headers: {
-      Authorization: `Bearer ${tokens.accessToken()}`,
-    },
-  });
-  const githubUser = await githubUserResponse.json();
-  const githubUserId = githubUser.id;
-  const githubUsername = githubUser.login;
-
-  // TODO: Replace this with your own DB query.
-  const existingUser = await db
-    .select()
-    .from(userTable)
-    .where(eq(userTable.githubId, githubUserId));
-
-  if (existingUser !== null) {
-    const sessionToken = generateSessionToken();
-    const session = await createSession(sessionToken, existingUser.id);
-    if (!session) {
-      return "some error while creating the session for the GH.";
-    }
-    await setSessionTokenCookie(res, sessionToken, session.expiresAt);
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: "/",
-      },
-    });
-  }
-
-  // TODO: Replace this with your own DB query.
-
-  const user = await db
-    .insert(userTable)
-    .values({ githubId: githubUserId, username: githubUsername });
-
-  const sessionToken = generateSessionToken();
-  const session = await createSession(sessionToken, user.id);
-  if (!session) {
-    return "session not found when creating the GH session";
-  }
-  await setSessionTokenCookie(res, sessionToken, session.expiresAt);
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: "/",
-    },
-  });
+export const githubCallBack = async (req: Request, res: Response): Promise<void> => {
+console.log(req)
+  // Send a response (e.g., confirming OAuth success)
+  res.json({ message: 'hello bob' });
 };
+
 
 function generateSessionToken(): string {
   const bytes = new Uint8Array(20);

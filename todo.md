@@ -5,7 +5,7 @@
 7. add some mocktests using the vitest for checking the endpoints.
 10. Add RBAC
 11. WebSocket using Socket.io for real-time, done setting up add more features in this when done with litte bit of client side, take help from ChatGPT.
-12. Api documentation using the swagger or take help from AI.
+12. Api documentation using the apidog.
 14. add TRPC later instead of REST.
 8. setup some GH Actions.
 15. create the same backend using the Python and GraphQL.
