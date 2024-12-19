@@ -173,6 +173,10 @@ export const githubCallBack = async (
         return;
       }
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);
+      if(process.env.NODE_ENV === "production"){
+        res.redirect('https://clientverse.vercel.app/dashboard')
+
+      }
       res.redirect('http://localhost:5173/dashboard')
 
       console.log(existingUser)
@@ -190,6 +194,10 @@ export const githubCallBack = async (
       return;
     }
     await setSessionTokenCookie(res, sessionToken, session.expiresAt);
+    if(process.env.NODE_ENV === "production"){
+      res.redirect('https://clientverse.vercel.app/dashboard')
+
+    }
     res.redirect('http://localhost:5173/dashboard')
 
     
