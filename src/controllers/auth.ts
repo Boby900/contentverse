@@ -173,11 +173,11 @@ export const githubCallBack = async (
         return;
       }
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);
-      if(process.env.NODE_ENV === "production"){
-        res.redirect('https://clientverse.vercel.app/dashboard')
-
-      }
-      res.redirect('http://localhost:5173/dashboard')
+      const redirectURL =
+      process.env.NODE_ENV === "production"
+        ? "https://clientverse.vercel.app/"
+        : "http://localhost:5173/dashboard";
+    res.redirect(redirectURL);
 
       console.log(existingUser)
       return; // Stop further execution
@@ -194,12 +194,11 @@ export const githubCallBack = async (
       return;
     }
     await setSessionTokenCookie(res, sessionToken, session.expiresAt);
-    if(process.env.NODE_ENV === "production"){
-      res.redirect('https://clientverse.vercel.app/dashboard')
-
-    }
-    res.redirect('http://localhost:5173/dashboard')
-
+    const redirectURL =
+    process.env.NODE_ENV === "production"
+      ? "https://clientverse.vercel.app/"
+      : "http://localhost:5173/dashboard";
+  res.redirect(redirectURL);
     
 };
 
