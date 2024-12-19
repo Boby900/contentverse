@@ -173,7 +173,8 @@ export const githubCallBack = async (
         return;
       }
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);
-      res.status(200).send("Session created successfully for GitHub user.");
+      res.redirect('http://localhost:5173/dashboard')
+
       console.log(existingUser)
       return; // Stop further execution
     }    
@@ -189,8 +190,9 @@ export const githubCallBack = async (
       return;
     }
     await setSessionTokenCookie(res, sessionToken, session.expiresAt);
- 
-  
+    res.redirect('http://localhost:5173/dashboard')
+
+    
 };
 
 function generateSessionToken(): string {
@@ -224,6 +226,7 @@ const createSession = async (
 export const logoutHandler = async (req: Request, res: Response) => {
   try {
     const token = req.cookies?.session; // Retrieve session token from cookies
+    console.log(token)
     if (!token) {
       res.status(400).json({ message: "No session token provided" });
       return;
