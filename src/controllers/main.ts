@@ -29,7 +29,7 @@ export const getDashboard = async (
     } catch (error) {
         console.error(error);
         res
-          .status(500)
+          .status(404)
           .json({ error: "Something went wrong. Please try again later." });
     }
 
