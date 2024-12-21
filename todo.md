@@ -13,3 +13,4 @@
 15. display users photo instead of other in client when signing up using the GH.
 19. do stress testing for the db and server using the external library, ref => ChatGPT,
 add test cases and run them at CI/CD.
+20. migrate to Tanstack query for the data fetching

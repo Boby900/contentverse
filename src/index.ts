@@ -7,6 +7,7 @@ import { Server } from 'socket.io';
 import mainRoutes from './routes/main.js';
 import authRoutes from './routes/auth.js';
 import contentRoutes from './routes/content.js';
+import userRoutes from './routes/user.js';
 import cookieParser from 'cookie-parser';
 
 dotenv.config({ path: '.env' });
@@ -34,6 +35,7 @@ app.use(cors(corsOptions));
 app.use('/api', mainRoutes);
 app.use('/api/auth', authRoutes)
 app.use('/api/content', contentRoutes)
+app.use('/api/user', userRoutes)
 const server = createServer(app);
 
 const io = new Server(server, {
