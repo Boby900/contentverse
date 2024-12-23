@@ -12,7 +12,8 @@ export const createCollection = async (
     const { fields } = req.body;
 
     if (!name || !fields || fields.length === 0) {
-      return res.status(400).json({ error: "Name and fields are required" });
+      res.status(400).json({ error: "Name and fields are required" });
+      return;
     }
 
     console.log("name:", name);
