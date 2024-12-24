@@ -40,7 +40,18 @@ export const mediaTable = pgTable("media", {
   mime_type: text("mime_type").notNull(),
   user_pinata_id: text("user_pinata_id").notNull(),
 });
-
+export const collectionMetadataTable = pgTable("collection_metadata", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  tableName: text("table_name").notNull(),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+    mode: "date",
+  }).defaultNow(),
+});
+export type Collection_MetaData = InferSelectModel<typeof collectionMetadataTable>
 export type User = InferSelectModel<typeof userTable>;
 export type Media = InferSelectModel<typeof mediaTable>;
 export type Session = InferSelectModel<typeof sessionTable>;
