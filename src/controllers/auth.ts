@@ -277,7 +277,7 @@ export async function validateSessionTokenHandler(
   next: NextFunction
 ) {
   try {
-    const token = req.headers["token"] as string;
+    const token = req.cookies?.session;
     // Validate the session token
     const validated = await validateSessionToken(token);
     if (!validated.session || !validated.user || !token) {
