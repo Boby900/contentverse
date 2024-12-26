@@ -196,7 +196,7 @@ export const githubCallBack = async (
     await setSessionTokenCookie(res, sessionToken, session.expiresAt);
     const redirectURL =
     process.env.NODE_ENV === "production"
-      ? "https://clientverse.vercel.app/"
+      ? "https://clientverse.vercel.app/dashboard"
       : "http://localhost:5173/dashboard";
   res.redirect(redirectURL);
     

@@ -6,7 +6,7 @@ const router = express.Router();
 
 // router.get('/', validateSessionTokenHandler, getAllContent);
 router.post('/', validateSessionTokenHandler, createCollection);
-router.get('/get_collections', getCollections )
+router.get('/get_collections', validateSessionTokenHandler, getCollections )
 // router.get('/:id', vazlidateSessionTokenHandler, getContentByID)
 // router.put('/:id', validateSessionTokenHandler, updateContentByID)
 // router.delete('/:id', validateSessionTokenHandler, deleteContentByID)
