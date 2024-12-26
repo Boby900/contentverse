@@ -7,6 +7,8 @@ export const userTable = pgTable("user", {
   password: text("password"),
   githubId: text("github_id"),
 	username: text("github_username"),
+  googleId: text("google_id"),
+	name: text("google_name"),
   createdAt: timestamp("created_at", {
     withTimezone: true,
     mode: "date",

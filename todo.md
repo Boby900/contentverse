@@ -9,7 +9,7 @@
 16. add any feature flags.
 17. use redis for the caching of apis.
 18. add some type of rate limiting.
-15. display users photo instead of other in client when signing up using the GH.
+15. display users photo instead of other in client when signing up using the Google.
 19. do stress testing for the db and server using the external library, ref => ChatGPT,
 add test cases and run them at CI/CD.
 20. use some caching in the frontend as well.
