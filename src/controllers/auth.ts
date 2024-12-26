@@ -158,8 +158,10 @@ export const githubCallBack = async (
     },
   });
   const githubUser = await githubUserResponse.json();
+  console.log(githubUser)
   const githubUserId = githubUser.id;
   const githubUsername = githubUser.login;
+  const githubAvatar = githubUser.avatar_url;
   const existingUser = await db
     .select()
     .from(userTable)
@@ -175,9 +177,9 @@ export const githubCallBack = async (
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);
       const redirectURL =
       process.env.NODE_ENV === "production"
-        ? "https://clientverse.vercel.app/"
-        : "http://localhost:5173/dashboard";
-    res.redirect(redirectURL);
+        ? `https://clientverse.vercel.app/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`
+        : `http://localhost:5173/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`;
+      res.redirect(redirectURL);
 
       console.log(existingUser)
       return; // Stop further execution
@@ -196,8 +198,8 @@ export const githubCallBack = async (
     await setSessionTokenCookie(res, sessionToken, session.expiresAt);
     const redirectURL =
     process.env.NODE_ENV === "production"
-      ? "https://clientverse.vercel.app/dashboard"
-      : "http://localhost:5173/dashboard";
+      ? `https://clientverse.vercel.app/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`
+      : `http://localhost:5173/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`;
   res.redirect(redirectURL);
     
 };
