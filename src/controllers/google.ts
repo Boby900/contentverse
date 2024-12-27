@@ -1,7 +1,7 @@
 import type { OAuth2Tokens } from "arctic";
 import { generateState, generateCodeVerifier } from "arctic";
 import { google } from "../lib/google.js";
-import { Response, Request } from "express";
+import { Response, Request, NextFunction } from "express";
 import { db } from "../db/index.js";
 import { eq } from "drizzle-orm";
 import { userTable } from "../db/schema.js";
@@ -13,11 +13,12 @@ type GoogleIdTokenClaims = {
   name?: string; // Optional if not always present
   email?: string; // Include other properties as needed
 };
-  
+
   export const googleHandler = async (req: Request, res: Response) => {
     const state = generateState();
     const codeVerifier = generateCodeVerifier();
     const url = google.createAuthorizationURL(state, codeVerifier, ["openid", "profile"]);
+
   
     if (process.env.NODE_ENV === "production") {
       // When deployed over HTTPS
@@ -30,6 +31,7 @@ type GoogleIdTokenClaims = {
         `google_code_verifier=${codeVerifier}; HttpOnly; SameSite=None; Max-Age=600; Path=/; Secure;`
       );
       
+      
     } else {
       // When deployed over HTTP (localhost)
       res.setHeader(
@@ -40,6 +42,7 @@ type GoogleIdTokenClaims = {
         "Set-Cookie",
         `google_code_verifier=${codeVerifier}; HttpOnly; SameSite=Lax; Max-Age=600; Path=/`
       );
+      
     }
     res.redirect(url.toString());
   };
@@ -48,11 +51,12 @@ type GoogleIdTokenClaims = {
   export const googleCallBack = async (
     req: Request,
     res: Response
-  ): Promise<void> => {
+    ): Promise<void> => {
     const code = req.query.code;
     const state = req.query.state;
-    const codeVerifier = req.query.google_code_verifier;
     const storedState = req.cookies.google_oauth_state;
+    const codeVerifier = req.cookies.google_code_verifier;
+  
     if (typeof code !== 'string' || typeof state !== 'string' || typeof codeVerifier !== 'string') {
       res.status(400).json({
         message: "Invalid or missing query parameters.",
@@ -74,7 +78,7 @@ type GoogleIdTokenClaims = {
       res.status(400).send("Failed to retrieve tokens.");
       return;
     }
-    const claims = decodeIdToken(tokens.idToken());
+    const claims = decodeIdToken(tokens.idToken()) as GoogleIdTokenClaims;
 
 
 
@@ -99,8 +103,8 @@ type GoogleIdTokenClaims = {
         await setSessionTokenCookie(res, sessionToken, session.expiresAt);
         const redirectURL =
         process.env.NODE_ENV === "production"
-          ? `https://clientverse.vercel.app/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`
-          : `http://localhost:5173/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`;
+          ? `https://clientverse.vercel.app/dashboard?gh_user_id=${googleUserId}&username=${username}`
+          : `http://localhost:5173/dashboard?gh_user_id=${googleUserId}&username=${username}`;
         res.redirect(redirectURL);
   
         console.log(existingUser)
@@ -108,7 +112,7 @@ type GoogleIdTokenClaims = {
       }    
       const user = await db
       .insert(userTable)
-      .values({ githubId: githubUserId, username: githubUsername })
+      .values({  googleId: googleUserId, username: username })
       .returning({id: userTable.id})
       console.log(user);
       const sessionToken = generateSessionToken();
@@ -120,8 +124,8 @@ type GoogleIdTokenClaims = {
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);
       const redirectURL =
       process.env.NODE_ENV === "production"
-        ? `https://clientverse.vercel.app/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`
-        : `http://localhost:5173/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`;
+        ? `https://clientverse.vercel.app/dashboard?gh_user_id=${googleUserId}&username=${username}`
+        : `http://localhost:5173/dashboard?gh_user_id=${googleUserId}&username=${username}`;
     res.redirect(redirectURL);
       
   };
