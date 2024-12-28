@@ -1,12 +1,8 @@
 import { Response, Request, NextFunction } from "express";
 import { db } from "../db/index.js";
-import { contentTable, mediaTable, userTable } from "../db/schema.js";
-import { randomUUID } from "crypto";
+import { contentTable, userTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { z, ZodError } from "zod";
-
-import fs  from "fs";
-
 
 
 
