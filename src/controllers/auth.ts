@@ -102,8 +102,7 @@ export const loginHandler = async (req: Request, res: Response) => {
 
 
 export function generateSessionToken(): string {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
+  const bytes = crypto.randomBytes(20); // Generate 20 random bytes  crypto.getRandomValues(bytes);
   const token = encodeBase32LowerCaseNoPadding(bytes);
   return token;
 }
