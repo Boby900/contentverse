@@ -1,7 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 import { db } from "../db/index.js";
 import { sql } from "drizzle-orm";
-import { randomUUID } from "crypto";
 import { collectionMetadataTable } from "../db/schema.js";
 
 export const createCollection = async (req: Request, res: Response) => {
