@@ -11,6 +11,9 @@
   },
   "author": "Boby Tiwari",
   "license": "MIT",
+  "engines": {
+  "node": ">=22.0.0"
+},
   "dependencies": {
     "@neondatabase/serverless": "^0.10.1",
     "@oslojs/crypto": "^1.0.1",
