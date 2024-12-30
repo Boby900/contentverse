@@ -63,7 +63,7 @@ export const githubCallBack = async (
         await setSessionTokenCookie(res, sessionToken, session.expiresAt);
         const redirectURL =
         process.env.NODE_ENV === "production"
-          ? `https://clientverse.vercel.app/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`
+          ? `https://clientverse.vercel.app/dashboard`
           : `http://localhost:5173/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`;
         res.redirect(redirectURL);
   
@@ -84,7 +84,7 @@ export const githubCallBack = async (
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);
       const redirectURL =
       process.env.NODE_ENV === "production"
-        ? `https://clientverse.vercel.app/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`
+        ? `https://clientverse.vercel.app/dashboard`
         : `http://localhost:5173/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`;
     res.redirect(redirectURL);
       
