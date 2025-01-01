@@ -44,7 +44,6 @@ export const githubCallBack = async (
       },
     });
     const githubUser = await githubUserResponse.json();
-    console.log(githubUser)
     const githubUserId = githubUser.id;
     const githubUsername = githubUser.login;
     const githubAvatar = githubUser.avatar_url;
@@ -67,14 +66,12 @@ export const githubCallBack = async (
           : `http://localhost:5173/dashboard?gh_user_id=${githubUserId}&username=${githubUsername}&github_avatar=${githubAvatar}`;
         res.redirect(redirectURL);
   
-        console.log(existingUser)
         return; // Stop further execution
       }    
       const user = await db
       .insert(userTable)
       .values({ githubId: githubUserId, username: githubUsername })
       .returning({id: userTable.id})
-      console.log(user);
       const sessionToken = generateSessionToken();
       const session = await createSession(sessionToken, user[0].id);
       if (!session) {
