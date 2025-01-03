@@ -109,7 +109,7 @@ export function generateSessionToken(): string {
 
 export const createSession = async (
   token: string,
-  userId: number
+  userId: string
 ): Promise<Session | null> => {
   try {
     const sessionId = encodeHexLowerCase(

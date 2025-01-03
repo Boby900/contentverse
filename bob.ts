@@ -7,9 +7,9 @@ export const userTable = pgTable("user", {
   email: text("email").unique(),
   password: text("password"),
   githubId: text("github_id"),
-    username: text("github_username"),
+	username: text("github_username"),
   googleId: text("google_id"),
-    name: text("google_name"),
+	name: text("google_name"),
   createdAt: timestamp("created_at", {
     withTimezone: true,
     mode: "date",

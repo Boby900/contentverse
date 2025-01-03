@@ -36,7 +36,7 @@ export const createCollection = async (req: Request, res: Response) => {
       CREATE TABLE ${tableName} (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         ${columns},
-        "userId" INTEGER NOT NULL REFERENCES "user" (id) ON DELETE CASCADE
+        "userId" uuid NOT NULL REFERENCES "user" (id) ON DELETE CASCADE
       );
     `;
 
