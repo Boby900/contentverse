@@ -22,7 +22,7 @@ const pinata = new PinataSDK({
 
 const contentSchema = z.object({
   title: z.string().min(5),
-  userId: z.number(),
+  userId: z.string(),
 });
 
 
