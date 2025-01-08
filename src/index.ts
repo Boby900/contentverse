@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import mainRoutes from './routes/main.js';
+import metriceRoutes from './routes/metrice.js'
 import authRoutes from './routes/auth.js';
 import contentRoutes from './routes/content.js';
 import userRoutes from './routes/user.js';
@@ -33,6 +34,7 @@ app.use(express.json()); // Parse JSON bodies
 app.use(cookieParser());  
 app.use(cors(corsOptions));
 // Set up routes
+app.use('/api/metrices', metriceRoutes)
 app.use('/api', mainRoutes);
 app.use('/api/auth', authRoutes)
 app.use('/api/content', contentRoutes)

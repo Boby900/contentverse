@@ -64,7 +64,7 @@ export const createCollection = async (req: Request, res: Response) => {
 export const getCollections = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
-
+ 
     if (!userId) {
       res.status(400).json({ error: "User ID is required" });
       return;

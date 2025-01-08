@@ -11,6 +11,14 @@ CREATE TABLE IF NOT EXISTS "content" (
 	"title" text
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "ip" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"reason" text,
+	"ip_address" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now(),
+	"expires_at" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "media" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" uuid NOT NULL,
