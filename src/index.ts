@@ -1,4 +1,4 @@
-// Import necessary modules
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -11,6 +11,7 @@ import userRoutes from "./routes/user.js";
 import cookieParser from "cookie-parser";
 import collectionRoutes from "./routes/collection.js";
 import { rateLimit } from "express-rate-limit";
+
 
 dotenv.config({ path: ".env" });
 

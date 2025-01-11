@@ -26,6 +26,20 @@ export const sessionTable = pgTable("session", {
     mode: "date",
   }).notNull(),
 });
+
+export const ipFailureTable = pgTable("ip", {
+  id: serial('id').primaryKey(),
+  reason: text("reason"), // Reason for failure
+  ip_address: text("ip_address").notNull(),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+    mode: "date",
+  }).defaultNow(),
+  expiresAt: timestamp("expires_at", {
+    withTimezone: true,
+    mode: "date",
+  }).notNull(),
+});
 export const contentTable = pgTable("content", {
   id: text("id").primaryKey(),
   userId: uuid("user_id")
