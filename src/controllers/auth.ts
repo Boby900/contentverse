@@ -211,14 +211,7 @@ export async function validateSessionTokenHandler(
 ) {
   try {
     const token = req.cookies?.session;
-    const customIp = "123.45.67.09"; // Replace with your custom IP address
-    const reason = "default, needs to be work upon"
-    Object.defineProperty(req, "ip", {
-      value: customIp,
-      writable: true, // Make it writable
-      configurable: true, // Make it configurable if needed
-    });
-    trackFailedRequest(customIp, reason);
+
     console.log(req.ip);
 
     // Validate the session token
