@@ -24,9 +24,10 @@ const allowedOrigin =
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 3, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  limit: 105, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  validate: {xForwardedForHeader: false}
 });
 
 const corsOptions = {
@@ -42,9 +43,9 @@ app.use(cors(corsOptions));
 // Set up routes
 app.use("/api", limiter, mainRoutes);
 app.use("/api/auth", limiter, authRoutes);
-app.use("/api/content", contentRoutes);
+app.use("/api/content", limiter, contentRoutes);
 app.use("/api/collection", limiter, collectionRoutes);
-app.use("/api/user", userRoutes);
+app.use("/api/user", limiter, userRoutes);
 const server = createServer(app);
 
 const io = new Server(server, {
