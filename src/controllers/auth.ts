@@ -1,9 +1,9 @@
 import type { Session, User } from "../db/schema.js";
 import { sessionTable, userTable } from "../db/schema.js";
-import { eq } from "drizzle-orm";
+import { and, eq, gte, lte } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { Response, Request, NextFunction } from "express";
-
+import { ipFailureTable } from "../db/schema.js";
 import {
   encodeBase32LowerCaseNoPadding,
   encodeHexLowerCase,
@@ -14,6 +14,7 @@ import crypto from "crypto";
 import { z, ZodError } from "zod";
 import { sendEmail } from "../lib/mailService.js";
 import { setSessionTokenCookie, deleteSessionTokenCookie } from "./cookies.js";
+import { sendEmailAlert } from "../lib/mailNodeMailer.js";
 const signupSchema = z.object({
   email: z.string().email().min(5),
   password: z.string().min(5),
@@ -98,9 +99,6 @@ export const loginHandler = async (req: Request, res: Response) => {
   }
 };
 
-
-
-
 export function generateSessionToken(): string {
   const bytes = crypto.randomBytes(20); // Generate 20 random bytes  crypto.getRandomValues(bytes);
   const token = encodeBase32LowerCaseNoPadding(bytes);
@@ -168,6 +166,44 @@ export async function invalidateSession(sessionId: string): Promise<boolean> {
   }
 }
 
+const FAILURE_THRESHOLD = 5; // Number of failed requests allowed before triggering alert
+const TIME_WINDOW = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+// Function to track failed requests
+export async function trackFailedRequest(ip: string, reason: string) {
+  const now = new Date();
+  const windowStart = new Date(now.getTime() - TIME_WINDOW);
+
+  // Calculate the number of failed attempts within the time window
+  const failedCount = await db
+    .select()
+    .from(ipFailureTable)
+    .where(
+      and(
+        eq(ipFailureTable.ip_address, ip),
+        gte(ipFailureTable.createdAt, windowStart),
+        lte(ipFailureTable.createdAt, now)
+      )
+    )
+    .then((rows) => rows.length);
+
+  // Trigger alert if the count exceeds the threshold
+  if (failedCount + 1 >= FAILURE_THRESHOLD) {
+    console.log(`ALERT: IP ${ip} has exceeded the threshold of failed requests.`);
+    await sendEmailAlert(ip); // Implement this function to send an email alert
+  }
+
+  // Insert the new failed request into the database
+  await db.insert(ipFailureTable).values({
+    reason,
+    ip_address: ip,
+    createdAt: now,
+    expiresAt: new Date(now.getTime() + TIME_WINDOW), // Optional expiration timestamp
+  });
+}
+
+
+
 export async function validateSessionTokenHandler(
   req: Request,
   res: Response,
@@ -175,6 +211,16 @@ export async function validateSessionTokenHandler(
 ) {
   try {
     const token = req.cookies?.session;
+    const customIp = "123.45.67.09"; // Replace with your custom IP address
+    const reason = "default, needs to be work upon"
+    Object.defineProperty(req, "ip", {
+      value: customIp,
+      writable: true, // Make it writable
+      configurable: true, // Make it configurable if needed
+    });
+    trackFailedRequest(customIp, reason);
+    console.log(req.ip);
+
     // Validate the session token
     const validated = await validateSessionToken(token);
     if (!validated.session || !validated.user || !token) {
