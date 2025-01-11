@@ -4,7 +4,7 @@ import { validateSessionTokenHandler } from '../controllers/auth.js';
 
 const router = express.Router();
 
-router.get('/', validateSessionTokenHandler, getHome);
+router.get('/', getHome);
 router.get('/dashboard', validateSessionTokenHandler, getDashboard);
 router.get('/getProfile', validateSessionTokenHandler, getProfile)
 
