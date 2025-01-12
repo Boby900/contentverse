@@ -10,9 +10,8 @@ import contentRoutes from "./routes/content.js";
 import userRoutes from "./routes/user.js";
 import cookieParser from "cookie-parser";
 import collectionRoutes from "./routes/collection.js";
-import { rateLimit } from "express-rate-limit";
 
-
+import { limiter } from "./lib/express-rate-liimiter.js";
 dotenv.config({ path: ".env" });
 
 const app = express();
@@ -22,13 +21,7 @@ const allowedOrigin =
     ? "https://clientverse.vercel.app"
     : "http://localhost:5173";
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 105, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  validate: {xForwardedForHeader: false}
-});
+
 
 const corsOptions = {
   origin: allowedOrigin, // Allow requests from this origin
