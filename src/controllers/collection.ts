@@ -16,6 +16,21 @@ export const createCollection = async (req: Request, res: Response) => {
       res.status(400).json({ error: "Name, userId and fields are required" });
       return;
     }
+    const tableName = `collection_${name}_${userId}`;
+
+    const existingTable = await db
+    .select()
+    .from(collectionMetadataTable)
+    .where(and(
+      eq(collectionMetadataTable.userId, userId),
+      eq(collectionMetadataTable.tableName, tableName)
+    ));
+    console.log(existingTable.length)
+    if(existingTable.length > 0){
+      res.status(400).json({error: `A Table named ${name} already exists`})
+      return
+    }
+  
 
     const columns = fields
       .map((field: string) => {
@@ -33,7 +48,10 @@ export const createCollection = async (req: Request, res: Response) => {
         }
       })
       .join(", ");
-    const tableName = `collection_${name}_${userId}`;
+
+      // Check if table already exists
+    
+
 
     const createTableQuery = `
       CREATE TABLE "${tableName}" (
