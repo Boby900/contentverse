@@ -34,11 +34,11 @@ app.use(express.json()); // Parse JSON bodies
 app.use(cookieParser());
 app.use(cors(corsOptions));
 // Set up routes
-app.use("/api", limiter, mainRoutes);
+app.use("/api", mainRoutes);
 app.use("/api/auth", limiter, authRoutes);
-app.use("/api/content", limiter, contentRoutes);
-app.use("/api/collection", limiter, collectionRoutes);
-app.use("/api/user", limiter, userRoutes);
+app.use("/api/content", contentRoutes);
+app.use("/api/collection", collectionRoutes);
+app.use("/api/user", userRoutes);
 const server = createServer(app);
 
 const io = new Server(server, {

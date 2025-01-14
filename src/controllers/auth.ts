@@ -212,7 +212,6 @@ export async function validateSessionTokenHandler(
   try {
     const token = req.cookies?.session;
 
-    console.log(req.ip);
 
     // Validate the session token
     const validated = await validateSessionToken(token);
