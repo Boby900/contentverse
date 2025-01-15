@@ -19,31 +19,21 @@ type GoogleIdTokenClaims = {
     const codeVerifier = generateCodeVerifier();
     const url = google.createAuthorizationURL(state, codeVerifier, ["openid", "profile"]);
 
-  
+
     if (process.env.NODE_ENV === "production") {
-      // When deployed over HTTPS
-      res.setHeader(
-        "Set-Cookie",
-        `google_oauth_state=${state}; HttpOnly; SameSite=None; Max-Age=600; Path=/; Secure;`
-      );
-      res.setHeader(
-        "Set-Cookie",
-        `google_code_verifier=${codeVerifier}; HttpOnly; SameSite=None; Max-Age=600; Path=/; Secure;`
-      );
-      
-      
+      res.setHeader("Set-Cookie", [
+        `google_oauth_state=${state}; HttpOnly; SameSite=None; Max-Age=600; Path=/; Secure;`,
+        `google_code_verifier=${codeVerifier}; HttpOnly; SameSite=None; Max-Age=600; Path=/; Secure;`,
+      ]);
     } else {
-      // When deployed over HTTP (localhost)
-      res.setHeader(
-        "Set-Cookie",
-        `google_oauth_state=${state}; HttpOnly; SameSite=Lax; Max-Age=600; Path=/`
-      );
-      res.setHeader(
-        "Set-Cookie",
-        `google_code_verifier=${codeVerifier}; HttpOnly; SameSite=Lax; Max-Age=600; Path=/`
-      );
-      
+      res.setHeader("Set-Cookie", [
+        `google_oauth_state=${state}; HttpOnly; SameSite=Lax; Max-Age=600; Path=/`,
+        `google_code_verifier=${codeVerifier}; HttpOnly; SameSite=Lax; Max-Age=600; Path=/`,
+      ]);
     }
+    
+
+
     res.redirect(url.toString());
   };
 
