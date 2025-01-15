@@ -68,13 +68,16 @@ type GoogleIdTokenClaims = {
       res.status(400).send("Failed to retrieve tokens.");
       return;
     }
+    const googleUserResponse = await fetch(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: { Authorization: `Bearer ${tokens.accessToken()}` },
+      }
+    );
+
+    const googleUser = await googleUserResponse.json();
+    const googleAvatar = googleUser.picture;
     const claims = decodeIdToken(tokens.idToken()) as GoogleIdTokenClaims;
-
-
-
-
-
-
 
 	const googleUserId = claims.sub;
 	const username = claims.name;
@@ -93,11 +96,10 @@ type GoogleIdTokenClaims = {
         await setSessionTokenCookie(res, sessionToken, session.expiresAt);
         const redirectURL =
         process.env.NODE_ENV === "production"
-          ? `https://clientverse.vercel.app/dashboard?gh_user_id=${googleUserId}&username=${username}`
-          : `http://localhost:5173/dashboard?gh_user_id=${googleUserId}&username=${username}`;
+          ? `https://clientverse.vercel.app/dashboard?google_user_id=${googleUserId}&username=${username}&google_avatar=${googleAvatar}`
+          : `http://localhost:5173/dashboard?google_user_id=${googleUserId}&username=${username}&google_avatar=${googleAvatar}`;
         res.redirect(redirectURL);
   
-        console.log(existingUser)
         return; // Stop further execution
       }    
       const user = await db
@@ -113,9 +115,9 @@ type GoogleIdTokenClaims = {
       }
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);
       const redirectURL =
-      process.env.NODE_ENV === "production"
-        ? `https://clientverse.vercel.app/dashboard?gh_user_id=${googleUserId}&username=${username}`
-        : `http://localhost:5173/dashboard?gh_user_id=${googleUserId}&username=${username}`;
+        process.env.NODE_ENV === "production"
+          ? `https://clientverse.vercel.app/dashboard?google_user_id=${googleUserId}&username=${username}&google_avatar=${googleAvatar}`
+          : `http://localhost:5173/dashboard?google_user_id=${googleUserId}&username=${username}&google_avatar=${googleAvatar}`;
     res.redirect(redirectURL);
       
   };
