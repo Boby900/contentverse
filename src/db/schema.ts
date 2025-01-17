@@ -63,6 +63,7 @@ export const collectionMetadataTable = pgTable("collection_metadata", {
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
   tableName: text("table_name").notNull(),
+  selectedFields: text("selected_fields").notNull(),
   createdAt: timestamp("created_at", {
     withTimezone: true,
     mode: "date",

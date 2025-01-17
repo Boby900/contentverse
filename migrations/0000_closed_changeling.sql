@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS "collection_metadata" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" uuid NOT NULL,
 	"table_name" text NOT NULL,
+	"selected_fields" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint

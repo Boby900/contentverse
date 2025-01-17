@@ -1,5 +1,5 @@
 {
-  "id": "6c2efb0c-ef38-4879-8984-230358b46ed4",
+  "id": "db711b12-f126-4114-82ad-bd2cb24d12c1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -22,6 +22,12 @@
         },
         "table_name": {
           "name": "table_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "selected_fields": {
+          "name": "selected_fields",
           "type": "text",
           "primaryKey": false,
           "notNull": true
