@@ -50,7 +50,6 @@ export const createCollection = async (req: Request, res: Response) => {
       .join(", ");
 
       // Check if table already exists
-    
 
 
     const createTableQuery = `
@@ -66,6 +65,7 @@ export const createCollection = async (req: Request, res: Response) => {
     await db.insert(collectionMetadataTable).values({
       userId,
       tableName,
+      selectedFields: JSON.stringify(fields), // Serialize the fields array
     });
     res.status(201).json({
       status: "success",
