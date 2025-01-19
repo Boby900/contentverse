@@ -16,8 +16,8 @@ import { sendEmail } from "../lib/mailService.js";
 import { setSessionTokenCookie, deleteSessionTokenCookie } from "./cookies.js";
 import { sendEmailAlert } from "../lib/mailNodeMailer.js";
 const signupSchema = z.object({
-  email: z.string().email().min(5),
-  password: z.string().min(5),
+  email: z.string().email().min(5, "minimum length should be 5"),
+  password: z.string().min(5, "minimum length should be 5"),
 });
 
 export const signupHandler = async (req: Request, res: Response) => {
@@ -57,9 +57,11 @@ export const signupHandler = async (req: Request, res: Response) => {
     }
   } catch (error) {
     if (error instanceof ZodError) {
+      const customMessages = error.errors.map((err) => err.message);
+
       res.status(400).json({
         message: "Validation failed",
-        errors: error.errors, // Detailed validation issues
+        errors: customMessages, // Detailed validation issues
       });
     }
   }
@@ -91,9 +93,11 @@ export const loginHandler = async (req: Request, res: Response) => {
     }
   } catch (error) {
     if (error instanceof ZodError) {
+      const customMessages = error.errors.map((err) => err.message);
+
       res.status(400).json({
         message: "Validation failed",
-        errors: error.errors, // Detailed validation issues
+        errors: customMessages, // Detailed validation issues
       });
     }
   }
