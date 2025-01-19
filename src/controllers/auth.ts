@@ -93,9 +93,11 @@ export const loginHandler = async (req: Request, res: Response) => {
     }
   } catch (error) {
     if (error instanceof ZodError) {
+      const customMessages = error.errors.map((err) => err.message);
+
       res.status(400).json({
         message: "Validation failed",
-        errors: error.errors, // Detailed validation issues
+        errors: customMessages, // Detailed validation issues
       });
     }
   }
