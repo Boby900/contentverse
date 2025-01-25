@@ -5,13 +5,22 @@ import { db } from "../db/index.js";
 import { and, sql } from "drizzle-orm";
 import { collectionMetadataTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
+interface CollectionData {
+  tableName: string;
+  formData: {
+    created: Date | null;
+    description?: string;
+    author?: string;
+    category?: string;
+  };
+}
 
 export const createCollection = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
     const { fields } = req.body;
     const userId = req.user?.id;
-    console.log(name, fields, userId)
+    console.log(name, fields, userId);
     if (!name || !fields || fields.length === 0 || !userId) {
       res.status(400).json({ error: "Name, userId and fields are required" });
       return;
@@ -19,18 +28,18 @@ export const createCollection = async (req: Request, res: Response) => {
     const tableName = `collection_${name}_${userId}`;
 
     const existingTable = await db
-    .select()
-    .from(collectionMetadataTable)
-    .where(and(
-      eq(collectionMetadataTable.userId, userId),
-      eq(collectionMetadataTable.tableName, tableName)
-    ));
-    console.log(existingTable.length)
-    if(existingTable.length > 0){
-      res.status(400).json({error: `A Table named ${name} already exists`})
-      return
+      .select()
+      .from(collectionMetadataTable)
+      .where(
+        and(
+          eq(collectionMetadataTable.userId, userId),
+          eq(collectionMetadataTable.tableName, tableName)
+        )
+      );
+    if (existingTable.length > 0) {
+      res.status(400).json({ error: `A Table named ${name} already exists` });
+      return;
     }
-  
 
     const columns = fields
       .map((field: string) => {
@@ -49,8 +58,7 @@ export const createCollection = async (req: Request, res: Response) => {
       })
       .join(", ");
 
-      // Check if table already exists
-
+    // Check if table already exists
 
     const createTableQuery = `
       CREATE TABLE "${tableName}" (
@@ -82,7 +90,7 @@ export const createCollection = async (req: Request, res: Response) => {
 export const getCollections = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
- 
+
     if (!userId) {
       res.status(400).json({ error: "User ID is required" });
       return;
@@ -155,6 +163,36 @@ export const deleteCollections = async (req: Request, res: Response) => {
       status: "success",
       message: "Collection deleted successfully",
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An unexpected error occurred" });
+  }
+};
+
+export const insertCollectionData = async (req: Request, res: Response) => {
+  try {
+    const data: CollectionData = req.body;
+    const userId = req.user?.id; // Assuming `req.user` is populated by authentication middleware
+    const formData = data.formData;
+    const tableName = data.tableName;
+    console.log(formData, tableName);
+
+    if (!data || !userId) {
+      res.status(400).json({ error: "Missing required fields or UserId" });
+      return;
+    }
+    // Dynamically construct the query for inserting data
+    const insertQuery = sql`
+    INSERT INTO "${sql.raw(tableName)}" (${sql.join(
+      Object.keys(formData).map((key) => sql.raw(`"${key}"`)),
+      sql`, `
+    )}, "userId")
+    VALUES (${sql.join(
+      [...Object.values(formData).map((value) => value === null ? sql.raw('NULL')  : sql`${value}`)],
+      sql`, `
+    )}, ${sql`${userId}`});
+  `;
+    await db.execute(insertQuery);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "An unexpected error occurred" });
