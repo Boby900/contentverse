@@ -193,6 +193,8 @@ export const insertCollectionData = async (req: Request, res: Response) => {
     )}, ${sql`${userId}`});
   `;
     await db.execute(insertQuery);
+    res.status(201).json({ message: "Collection data inserted successfully" });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "An unexpected error occurred" });
