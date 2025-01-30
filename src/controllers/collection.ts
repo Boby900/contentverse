@@ -15,6 +15,7 @@ interface CollectionData {
   };
 }
 
+
 export const createCollection = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
@@ -168,6 +169,59 @@ export const deleteCollections = async (req: Request, res: Response) => {
     res.status(500).json({ error: "An unexpected error occurred" });
   }
 };
+export const getCollectionsByID = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id; // User ID from authentication middleware
+    const collectionID = req.params?.id;
+    const collectionIDAsNumber = parseInt(collectionID, 10); // Adjust type conversion based on schema
+    if (isNaN(collectionIDAsNumber)) {
+      res.status(400).json({ error: "Invalid collectionID format" });
+      return;
+    }
+    if (!userId || !collectionID) {
+      res.status(400).json({ error: "User ID and collectionID is required" });
+      return;
+    }
+    await db.transaction(async (trx) => {
+      // Step 1: Fetch metadata for the collection
+      const metadata = await trx
+        .select()
+        .from(collectionMetadataTable)
+        .where(
+          and(
+            eq(collectionMetadataTable.userId, userId),
+            eq(collectionMetadataTable.id, collectionIDAsNumber)
+          )
+        );
+
+      if (metadata.length === 0) {
+        throw new Error("Collection not found");
+      }
+
+      const collection = metadata[0]; // Get the first (and should be only) collection
+      const tableName = collection.tableName; // Get the table name from metadata
+
+      // Step 2: Fetch data from the actual collection table
+      const data = await trx.execute(sql.raw(`
+        SELECT *
+        FROM "${tableName}"  -- Use the table name from metadata
+        WHERE "userId" = ${userId};  -- Use the userId variable
+      `));
+      
+
+      res.status(200).json({
+        status: "success",
+        data: {
+          data,
+          metadata
+        },
+        message: "Fetched collection successfully",
+      });
+  })} catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An unexpected error occurred" });
+  }
+};
 
 export const insertCollectionData = async (req: Request, res: Response) => {
   try {
@@ -188,11 +242,16 @@ export const insertCollectionData = async (req: Request, res: Response) => {
       sql`, `
     )}, "userId")
     VALUES (${sql.join(
-      [...Object.values(formData).map((value) => value === null ? sql.raw('NULL')  : sql`${value}`)],
+      [
+        ...Object.values(formData).map((value) =>
+          value === null ? sql.raw("NULL") : sql`${value}`
+        ),
+      ],
       sql`, `
     )}, ${sql`${userId}`});
   `;
     await db.execute(insertQuery);
+    res.status(201).json({ message: "Collection data inserted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "An unexpected error occurred" });
