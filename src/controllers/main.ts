@@ -6,7 +6,6 @@ export const getHome = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.body);
     res.status(200).json({ message: "Hello World!" });
   } catch (error) {
     console.error(error);
@@ -23,7 +22,6 @@ export const getDashboard = async (
 ) => {
 
     try {
-        console.log(req.body);
         res.status(200).json({ message: "Hello Dashboard!" });
         
     } catch (error) {
@@ -41,7 +39,6 @@ export const getProfile = async (
   next: NextFunction
 ) => {
     try {
-        console.log(req.body);
         res.status(200).json({ message: "Hello Profile!" });
         
     } catch (error) {
