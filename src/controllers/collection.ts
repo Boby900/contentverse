@@ -173,55 +173,60 @@ export const getCollectionsByID = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
     const collectionID = req.params?.id;
-    const collectionIDAsNumber = parseInt(collectionID, 10); // Adjust type conversion based on schema
+    const collectionIDAsNumber = Number(collectionID); 
     if (isNaN(collectionIDAsNumber)) {
       res.status(400).json({ error: "Invalid collectionID format" });
       return;
     }
+   
     if (!userId || !collectionID) {
-      res.status(400).json({ error: "User ID and collectionID is required" });
+      res.status(400).json({ error: "User ID and collectionID are required" });
       return;
     }
-    await db.transaction(async (trx) => {
-      // Step 1: Fetch metadata for the collection
-      const metadata = await trx
-        .select()
-        .from(collectionMetadataTable)
-        .where(
-          and(
-            eq(collectionMetadataTable.userId, userId),
-            eq(collectionMetadataTable.id, collectionIDAsNumber)
-          )
-        );
 
-      if (metadata.length === 0) {
-        throw new Error("Collection not found");
-      }
+    // Fetch metadata for the collection
+    const metadata = await db
+      .select()
+      .from(collectionMetadataTable)
+      .where(
+        and(
+          eq(collectionMetadataTable.userId, userId),
+          eq(collectionMetadataTable.id, collectionIDAsNumber)
+        )
+      );
 
-      const collection = metadata[0]; // Get the first (and should be only) collection
-      const tableName = collection.tableName; // Get the table name from metadata
+    if (metadata.length === 0) {
+      res.status(404).json({ error: "Collection not found" });
+      return;
+    }
 
-      // Step 2: Fetch data from the actual collection table
-      const data = await trx.execute(sql.raw(`
-        SELECT *
-        FROM "${tableName}"  -- Use the table name from metadata
-        WHERE "userId" = ${userId};  -- Use the userId variable
-      `));
-      
+    const collection = metadata[0]; // Get the first (and should be only) collection
+    const tableName = collection.tableName; // Get the table name from metadata
 
-      res.status(200).json({
-        status: "success",
-        data: {
-          data,
-          metadata
-        },
-        message: "Fetched collection successfully",
-      });
-  })} catch (error) {
+    // Fetch data from the actual collection table
+    const data = await db.execute(sql.raw(`
+      SELECT *
+      FROM "${tableName}"
+      WHERE "userId" = '${userId}';
+    `));
+    const tableData = data.rows
+
+    console.log({
+       tableData,
+   metadata
+    })
+    res.status(200).json({
+      status: "success",
+      tableData,
+      metadata,
+      message: "Fetched collection successfully",
+    });
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "An unexpected error occurred" });
   }
 };
+
 
 export const insertCollectionData = async (req: Request, res: Response) => {
   try {
