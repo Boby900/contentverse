@@ -21,7 +21,6 @@ export const createCollection = async (req: Request, res: Response) => {
     const { name } = req.body;
     const { fields } = req.body;
     const userId = req.user?.id;
-    console.log(name, fields, userId);
     if (!name || !fields || fields.length === 0 || !userId) {
       res.status(400).json({ error: "Name, userId and fields are required" });
       return;
@@ -91,7 +90,8 @@ export const createCollection = async (req: Request, res: Response) => {
 export const getCollections = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
-
+    console.log(req.user?.role)
+    
     if (!userId) {
       res.status(400).json({ error: "User ID is required" });
       return;
@@ -211,10 +211,7 @@ export const getCollectionsByID = async (req: Request, res: Response) => {
     `));
     const tableData = data.rows
 
-    console.log({
-       tableData,
-   metadata
-    })
+   
     res.status(200).json({
       status: "success",
       tableData,
@@ -234,7 +231,6 @@ export const insertCollectionData = async (req: Request, res: Response) => {
     const userId = req.user?.id; // Assuming `req.user` is populated by authentication middleware
     const formData = data.formData;
     const tableName = data.tableName;
-    console.log(formData, tableName);
 
     if (!data || !userId) {
       res.status(400).json({ error: "Missing required fields or UserId" });

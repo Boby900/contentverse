@@ -106,7 +106,6 @@ type GoogleIdTokenClaims = {
       .insert(userTable)
       .values({  googleId: googleUserId, username: username })
       .returning({id: userTable.id})
-      console.log(user);
       const sessionToken = generateSessionToken();
       const session = await createSession(sessionToken, user[0].id);
       if (!session) {

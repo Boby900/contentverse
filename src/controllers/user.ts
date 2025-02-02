@@ -43,31 +43,35 @@ export const getAllUsers = async (
 export const getUserByID = async (
   req: Request,
   res: Response,
-  next: NextFunction
 ) => {
+  if (!req.user) {
+   res.status(401).json({ error: 'Unauthorized' });
+   return 
+  }
+
   try {
-    const { id } = req.params;
-    const data = await db
-      .select()
-      .from(contentTable)
-      .where(eq(contentTable.id, id));
-      if (!data.length) {
-        res.status(404).json({
-          status: "fail",
-          message: `Content with ID ${id} not found`,
-        })
-      return
-      };
+    console.log(req.user)
+    const user = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.id, req.user.id))
+    .limit(1);
+    if (!user.length) {
+   res.status(404).json({ error: 'User not found' });
+   return 
+    }
+  
     res.status(200).json({
       status: "success",
       message: "Content fetched successfully",
-      data: data,
+      data: user,
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({
       status: "error",
-      message: "Internal server error while fetching content",
+      message: "Internal server error while fetching user by ID",
       error: error,
     });
   }
