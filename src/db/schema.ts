@@ -1,6 +1,8 @@
-import { pgTable, serial, text, integer, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, pgEnum, integer, timestamp, uuid } from "drizzle-orm/pg-core";
 import type { InferSelectModel } from "drizzle-orm";
 import { sql } from "drizzle-orm";
+
+export const roleEnum = pgEnum('role', ['admin', 'viewer']);
 
 export const userTable = pgTable("user", {
   id: uuid("id").default(sql`gen_random_uuid()`).primaryKey().notNull(),
@@ -14,6 +16,7 @@ export const userTable = pgTable("user", {
     withTimezone: true,
     mode: "date",
   }).defaultNow(),
+  role: roleEnum("role").default('viewer').notNull(),  // Add role field
 });
 
 export const sessionTable = pgTable("session", {

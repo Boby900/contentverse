@@ -70,7 +70,6 @@ export const signupHandler = async (req: Request, res: Response) => {
 export const loginHandler = async (req: Request, res: Response) => {
   try {
     const { email, password } = signupSchema.parse(req.body);
-    // Find user by email
     const user = await db
       .select()
       .from(userTable)
