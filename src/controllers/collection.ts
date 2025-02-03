@@ -1,5 +1,4 @@
-import { Response, Request, NextFunction } from "express";
-import { uuid } from "drizzle-orm/pg-core";
+import { Response, Request} from "express";
 
 import { db } from "../db/index.js";
 import { and, sql } from "drizzle-orm";
@@ -14,7 +13,6 @@ interface CollectionData {
     category?: string;
   };
 }
-
 
 export const createCollection = async (req: Request, res: Response) => {
   try {
@@ -84,9 +82,7 @@ export const createCollection = async (req: Request, res: Response) => {
     res.status(500).json({ error: "An unexpected error occurred" });
   }
 };
-// Construct the CREATE TABLE query
 
-// Respond with success
 export const getCollections = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
@@ -138,6 +134,7 @@ export const getCollections = async (req: Request, res: Response) => {
     res.status(500).json({ error: "An unexpected error occurred" });
   }
 };
+
 export const deleteCollections = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
@@ -169,6 +166,7 @@ export const deleteCollections = async (req: Request, res: Response) => {
     res.status(500).json({ error: "An unexpected error occurred" });
   }
 };
+
 export const getCollectionsByID = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
@@ -223,7 +221,6 @@ export const getCollectionsByID = async (req: Request, res: Response) => {
     res.status(500).json({ error: "An unexpected error occurred" });
   }
 };
-
 
 export const insertCollectionData = async (req: Request, res: Response) => {
   try {
