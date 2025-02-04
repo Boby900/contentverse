@@ -3,7 +3,7 @@ import { db } from "../db/index.js";
 import { collectionMetadataTable, userTable } from "../db/schema.js";
 import { eq, inArray, sql } from "drizzle-orm";
 
-export const getAllUsers = async (res: Response) => {
+export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const data = await db.select().from(userTable);
     if (!data.length) {

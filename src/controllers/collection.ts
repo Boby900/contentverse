@@ -1,8 +1,8 @@
-import { Response, Request} from "express";
+import { Response, Request } from "express";
 
 import { db } from "../db/index.js";
-import { and, sql } from "drizzle-orm";
-import { collectionMetadataTable } from "../db/schema.js";
+import { and, inArray, sql } from "drizzle-orm";
+import { collectionMetadataTable, userTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 interface CollectionData {
   tableName: string;
@@ -86,8 +86,8 @@ export const createCollection = async (req: Request, res: Response) => {
 export const getCollections = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
-    console.log(req.user?.role)
-    
+    console.log(req.user?.role);
+
     if (!userId) {
       res.status(400).json({ error: "User ID is required" });
       return;
@@ -167,16 +167,67 @@ export const deleteCollections = async (req: Request, res: Response) => {
   }
 };
 
+export const deleteRowsOFCollection = async (req: Request, res: Response) => {
+  try {
+    const { ids, collectionName } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId ) {
+      res.status(400).json({ message: "Invalid request: userId or collectionId missing" });
+      return;
+    }
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      res.status(400).json({ message: "Invalid request: No IDs provided for deletion" });
+      return;
+    }
+
+    // Fetch the specific collection's table name
+    const metadata = await db
+      .select()
+      .from(collectionMetadataTable)
+      .where(
+        and(
+          eq(collectionMetadataTable.tableName, collectionName),
+          eq(collectionMetadataTable.userId, userId),
+        )
+      );
+
+    if (metadata.length === 0) {
+      res.status(404).json({ message: "Collection not found for this user" });
+      return;
+    }
+
+    const tableName = metadata[0].tableName; // Get the correct dynamic table name
+
+    const deleteQuery = sql`
+    DELETE FROM "${sql.raw(tableName)}"
+    WHERE id IN (${sql.join(ids.map((id) => sql`${id}`), sql`, `)});
+  `;
+
+  const result = await db.execute(deleteQuery);
+
+  console.log("Delete result:", result); // Debugging
+res.status(200).json({ status: "success", message: "Collection deleted successfully" });
+
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error deleting rows" });
+    
+  }
+};
+
 export const getCollectionsByID = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id; // User ID from authentication middleware
     const collectionID = req.params?.id;
-    const collectionIDAsNumber = Number(collectionID); 
+    const collectionIDAsNumber = Number(collectionID);
     if (isNaN(collectionIDAsNumber)) {
       res.status(400).json({ error: "Invalid collectionID format" });
       return;
     }
-   
+
     if (!userId || !collectionID) {
       res.status(400).json({ error: "User ID and collectionID are required" });
       return;
@@ -202,14 +253,15 @@ export const getCollectionsByID = async (req: Request, res: Response) => {
     const tableName = collection.tableName; // Get the table name from metadata
 
     // Fetch data from the actual collection table
-    const data = await db.execute(sql.raw(`
+    const data = await db.execute(
+      sql.raw(`
       SELECT *
       FROM "${tableName}"
       WHERE "userId" = '${userId}';
-    `));
-    const tableData = data.rows
+    `)
+    );
+    const tableData = data.rows;
 
-   
     res.status(200).json({
       status: "success",
       tableData,
