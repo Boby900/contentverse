@@ -1,30 +1,17 @@
-import { Response, Request, NextFunction } from "express";
+import { Response, Request } from "express";
 import { db } from "../db/index.js";
-import { contentTable, userTable } from "../db/schema.js";
-import { eq } from "drizzle-orm";
-import { z, ZodError } from "zod";
+import { collectionMetadataTable, userTable } from "../db/schema.js";
+import { eq, inArray, sql } from "drizzle-orm";
 
-
-
-const contentSchema = z.object({
-  title: z.string().min(5),
-  userId: z.number(),
-});
-
-
-
-export const getAllUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const data = await db.select().from(userTable);
     if (!data.length) {
       res.status(404).json({
         status: "fail",
         message: `Users not found`,
-      })}
+      });
+    }
     res.status(200).json({
       status: "success",
       message: "Users fetched successfully",
@@ -40,33 +27,29 @@ export const getAllUsers = async (
   }
 };
 
-export const getUserByID = async (
-  req: Request,
-  res: Response,
-) => {
+export const getUserByID = async (req: Request, res: Response) => {
   if (!req.user) {
-   res.status(401).json({ error: 'Unauthorized' });
-   return 
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
 
   try {
-    console.log(req.user)
+    console.log(req.user);
     const user = await db
-    .select()
-    .from(userTable)
-    .where(eq(userTable.id, req.user.id))
-    .limit(1);
+      .select()
+      .from(userTable)
+      .where(eq(userTable.id, req.user.id))
+      .limit(1);
     if (!user.length) {
-   res.status(404).json({ error: 'User not found' });
-   return 
+      res.status(404).json({ error: "User not found" });
+      return;
     }
-  
+
     res.status(200).json({
       status: "success",
       message: "Content fetched successfully",
       data: user,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -77,82 +60,55 @@ export const getUserByID = async (
   }
 };
 
-export const updateUserByID = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const deleteUserByID = async (req: Request, res: Response) => {
   try {
-    const validData = contentSchema.partial({
-      userId: true
-    })
-    const { id } = req.params;
-    const { title } =  validData.parse(req.body);
-    
-    
-    const data = await db
-      .update(contentTable)
-      .set({"title": title })
-      .where(eq(contentTable.id, id))
-      .returning();
- 
-      if (!data.length) {
-        res.status(404).json({
-          status: "fail",
-          message: `Content with ID ${id} not found`,
-        })
-      return
-      };
-    res.status(200).json({
-      status: "success",
-      message: "Content updated successfully",
-      data: data,
-    });
-  } catch (error: unknown) {
-    if (error instanceof ZodError) {
-     
+    const { id } = req.params; // Example: "ed0d13f3-917e-4910-acc3-075a7adf1495,1a1ebf84-23f4-4b45-935a-338856f426c4"
 
-    res.status(400).json({
+    // Convert `id` string into an array of UUIDs
+    const idArray = id.split(",").map((uuid) => uuid.trim());
+
+    if (idArray.some((uuid) => !uuid.match(/^[0-9a-fA-F-]{36}$/))) {
+      res.status(400).json({
         status: "fail",
-        errors: error.errors, // Include detailed validation errors
+        message: "Invalid UUID format",
       });
-      return
-
-     
-
+      return;
     }
-    res.status(500).json({
-      status: "error",
-      message: "Internal server error while creating content",
-      error: error,
-    });
-    
-  }
-};
-export const deleteUserByID = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { id } = req.params;
-    const data = await db.delete(contentTable).where(eq(contentTable.id, id));
-    if (data.rowCount !==1) {
+    // Fetch tables to drop
+    const tablesToDelete = await db
+      .select({ tableName: collectionMetadataTable.tableName })
+      .from(collectionMetadataTable)
+      .where(inArray(collectionMetadataTable.userId, idArray));
+
+    for (const table of tablesToDelete) {
+      const dropTableQuery = `DROP TABLE IF EXISTS "${table.tableName}" CASCADE;`;
+      await db.execute(sql.raw(dropTableQuery));
+    }
+
+    // Delete users where ID matches any UUID in the array
+    const deletedUsers = await db
+      .delete(userTable)
+      .where(inArray(userTable.id, idArray))
+      .returning({ deletedId: userTable.id });
+
+    if (!deletedUsers.length) {
       res.status(404).json({
         status: "fail",
-        message: `Content with id ${id} not found`,
-      })}
-    if (data.rowCount == 1) {
-      res.status(200).json({
-        status: "success",
-        message: "Content deleted successfully",
+        message: `Users with provided IDs not found`,
       });
+      return;
     }
+
+    res.status(200).json({
+      status: "success",
+      message: "Users deleted successfully",
+      deleted: deletedUsers,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       status: "error",
-      message: "Internal server error while fetching content",
+      message: "Internal server error while deleting users",
       error: error,
     });
   }
