@@ -9,18 +9,25 @@ import { sha256 } from "@oslojs/crypto/sha2";
 
 describe("test case for the login endpoint", () => {
   const testEmail = "testuser@gmail.com";
+  const testPassword = "testpassword"; // Add a test password
 
   beforeAll(async () => {
     // Remove only the test-created entries
     await db.delete(userTable).where(eq(userTable.email, testEmail));
-  });
 
+    // Create a test user
+    const hashedPassword = encodeHexLowerCase(
+      sha256(new TextEncoder().encode(testPassword))
+    );
+    await db.insert(userTable).values({
+      email: testEmail,
+      password: hashedPassword,
+    });
+  });
   afterAll(async () => {
     // Remove only the test-created entries
     await db.delete(userTable).where(eq(userTable.email, testEmail));
   });
-
-
 
   it("should throw the error if the email or password is wrong", async () => {
     const payload = {
@@ -46,18 +53,15 @@ describe("test case for the login endpoint", () => {
     expect(response.status).toBe(400);
   });
 
-
   it("should successfully login a user and create a session", async () => {
-    const testEmail = "osku@gmail.com";
     const payload = {
       email: testEmail,
-      password: "bobisbob",
+      password: testPassword,
     };
     const response = await request(app).post("/api/auth/login").send(payload);
-
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
-message: "Logged in successfully"
+      message: "Logged in successfully",
     });
 
     // Verify the user is created in the database
@@ -65,13 +69,13 @@ message: "Logged in successfully"
       .select()
       .from(userTable)
       .where(eq(userTable.email, testEmail));
-    const expectedUser = expect(users.length).toBe(1);
+    expect(users.length).toBe(1);
 
     // Verify the session is created in the database
     const sessions = await db
       .select()
       .from(sessionTable)
       .where(eq(sessionTable.userId, users[0].id));
-    const expectedSession = expect(sessions.length).toBeGreaterThanOrEqual(1);
+    expect(sessions.length).toBeGreaterThanOrEqual(1);
   });
 });
