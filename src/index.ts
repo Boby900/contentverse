@@ -6,7 +6,6 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import mainRoutes from "./routes/main.js";
 import authRoutes from "./routes/auth.js";
-import contentRoutes from "./routes/content.js";
 import userRoutes from "./routes/user.js";
 import cookieParser from "cookie-parser";
 import collectionRoutes from "./routes/collection.js";
@@ -36,7 +35,6 @@ app.use(cors(corsOptions));
 // Set up routes
 app.use("/api", mainRoutes);
 app.use("/api/auth", limiter, authRoutes);
-app.use("/api/content", contentRoutes);
 app.use("/api/collection", collectionRoutes);
 app.use("/api/user", userRoutes);
 const server = createServer(app);
