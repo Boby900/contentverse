@@ -43,23 +43,7 @@ export const ipFailureTable = pgTable("ip", {
     mode: "date",
   }).notNull(),
 });
-export const contentTable = pgTable("content", {
-  id: text("id").primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-  title: text("title"),
-});
-export const mediaTable = pgTable("media", {
-  id: text("id").primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
-  pinata_id: text("pinata_id").notNull(),
-  cid: text("cid").notNull(),
-  mime_type: text("mime_type").notNull(),
-  user_pinata_id: text("user_pinata_id").notNull(),
-});
+
 export const collectionMetadataTable = pgTable("collection_metadata", {
   id: serial("id").primaryKey(),
   userId: uuid("user_id")
@@ -74,5 +58,4 @@ export const collectionMetadataTable = pgTable("collection_metadata", {
 });
 export type Collection_MetaData = InferSelectModel<typeof collectionMetadataTable>
 export type User = InferSelectModel<typeof userTable>;
-export type Media = InferSelectModel<typeof mediaTable>;
 export type Session = InferSelectModel<typeof sessionTable>;
