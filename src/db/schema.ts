@@ -16,7 +16,11 @@ export const userTable = pgTable("user", {
     withTimezone: true,
     mode: "date",
   }).defaultNow(),
-  role: roleEnum("role").default('viewer').notNull(),  // Add role field
+  role: roleEnum("role").default('viewer').notNull(),  
+  email_verified: timestamp("email_verified", {
+    withTimezone: true,
+    mode: "date",
+  }), // New column to track email verification
 });
 
 export const sessionTable = pgTable("session", {
