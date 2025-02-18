@@ -2,6 +2,7 @@ import express from 'express';
 import { signupHandler, loginHandler, logoutHandler, validateSessionTokenHandler} from '../controllers/auth.js';
 import { githubHandler, githubCallBack } from '../controllers/github.js';
 import { googleCallBack, googleHandler } from '../controllers/google.js';
+import { sendVerificationEmail, verifyEmailCode } from '../controllers/email-verification.js';
 
 const router = express.Router();
 router.post('/signup', signupHandler); // Handles user signup
@@ -12,7 +13,8 @@ router.get('/google/login', googleHandler);
 router.get('/google/login/callback', googleCallBack);   
 router.post('/logout', logoutHandler);
 router.post('/validate', validateSessionTokenHandler);
-
+router.post("/send-verification", sendVerificationEmail);
+router.post("/verify-email", verifyEmailCode);
 
   
 export default router;

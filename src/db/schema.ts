@@ -65,7 +65,8 @@ export const emailVerificationTable = pgTable("email_verification", {
   id: serial("id").primaryKey(),
   userId: uuid("user_id")
     .notNull()
-    .references(() => userTable.id, { onDelete: "cascade" }),
+    .references(() => userTable.id, { onDelete: "cascade" })
+    .unique(),
   otp: text("otp").notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
