@@ -56,6 +56,18 @@ export const collectionMetadataTable = pgTable("collection_metadata", {
     mode: "date",
   }).defaultNow(),
 });
+
+export const emailVerificationTable = pgTable("email_verification", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" }),
+  otp: text("otp").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
+});
+
+export type EmailVerification = InferSelectModel<typeof emailVerificationTable>;
 export type Collection_MetaData = InferSelectModel<typeof collectionMetadataTable>
 export type User = InferSelectModel<typeof userTable>;
 export type Session = InferSelectModel<typeof sessionTable>;
