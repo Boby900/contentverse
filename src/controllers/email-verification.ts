@@ -6,25 +6,11 @@ import { Request, Response } from "express";
 import { emailVerificationTable, userTable } from "../db/schema.js";
 
 // Send Verification Email
-export async function sendVerificationEmail(req: Request, res: Response) {
+export async function sendVerificationEmail(req: Request, res: Response, userId: string) {
   const { email } = req.body;
 
   if (!email) {
     res.status(400).json({ message: "Email is required" });
-    return;
-  }
-
-  const user = await db.query.userTable.findFirst({
-    where: eq(userTable.email, email),
-  });
-
-  if (!user) {
-    res.status(404).json({ message: "User not found" });
-    return;
-  }
-
-  if (user.email_verified) {
-    res.status(400).json({ message: "Email already verified" });
     return;
   }
 
@@ -34,7 +20,7 @@ export async function sendVerificationEmail(req: Request, res: Response) {
   // Upsert OTP
   await db
     .insert(emailVerificationTable)
-    .values({ userId: user.id, otp: verificationCode, expiresAt })
+    .values({ userId: userId, otp: verificationCode, expiresAt })
     .onConflictDoUpdate({
       target: [emailVerificationTable.userId],
       set: { otp: verificationCode, expiresAt },

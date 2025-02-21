@@ -43,13 +43,14 @@ export const signupHandler = async (req: Request, res: Response) => {
         .values({ email, password: hashedPassword })
         .returning({ id: userTable.id });
         const token = generateSessionToken();
-      const session = await createSession(token, newUser[0].id);
+        const userId = newUser[0].id; // Access the id correctly
+      const session = await createSession(token, userId);
       if (!session) {
         res.status(500).json({ message: "Failed to create session" });
         return;
       }
       setSessionTokenCookie(res, token, session.expiresAt);
-      await sendVerificationEmail(req, res);
+      await sendVerificationEmail(req, res, userId );
       res.status(201).json({ message: "User registered successfully" });
       return;
     }
@@ -86,7 +87,7 @@ export const loginHandler = async (req: Request, res: Response) => {
         return;
       }
       setSessionTokenCookie(res, token, session.expiresAt);
-      await sendVerificationEmail(req, res);
+      await sendVerificationEmail(req, res, user[0].id);
       res.status(200).json({ message: "Logged in successfully" });
     }
   } catch (error) {
