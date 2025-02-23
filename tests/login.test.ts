@@ -1,16 +1,21 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
 import request from "supertest";
 import app from "../src/index.js";
 import { db } from "../src/db/index.js";
-import { sessionTable, userTable } from "../src/db/schema.js";
+import { emailVerificationTable, sessionTable, userTable } from "../src/db/schema.js";
 import { eq } from "drizzle-orm";
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
-
-describe("test case for the login endpoint", () => {
+import { sendVerificationEmail } from "../src/controllers/email-verification.js";
+// Mock sendVerificationEmail
+vi.mock("../src/utils/email-service.js", () => ({
+  sendVerificationEmail: vi.fn().mockResolvedValue(true), // Mock to resolve immediately
+}));
+describe("test case for the login and email verification endpoint", () => {
   const testEmail = "testuser@gmail.com";
   const testPassword = "testpassword"; // Add a test password
-
+  let testUserId: string;
+  let testVerificationCode: string;
   beforeAll(async () => {
     // Remove only the test-created entries
     await db.delete(userTable).where(eq(userTable.email, testEmail));
@@ -19,14 +24,20 @@ describe("test case for the login endpoint", () => {
     const hashedPassword = encodeHexLowerCase(
       sha256(new TextEncoder().encode(testPassword))
     );
-    await db.insert(userTable).values({
+    const result = await db.insert(userTable).values({
       email: testEmail,
       password: hashedPassword,
-    });
+    }).returning({id: userTable.id});
+    testUserId = result[0].id;
   });
   afterAll(async () => {
     // Remove only the test-created entries
     await db.delete(userTable).where(eq(userTable.email, testEmail));
+  });
+  beforeEach(async () => {
+    // Clear verification table before each test
+    await db.delete(emailVerificationTable).where(eq(emailVerificationTable.userId, testUserId));
+    vi.clearAllMocks();
   });
 
   it("should throw the error if the email or password is wrong", async () => {
@@ -61,7 +72,7 @@ describe("test case for the login endpoint", () => {
     const response = await request(app).post("/api/auth/login").send(payload);
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
-      message: "Logged in successfully",
+      message: "Verification email sent.",
     });
 
     // Verify the user is created in the database
@@ -77,5 +88,9 @@ describe("test case for the login endpoint", () => {
       .from(sessionTable)
       .where(eq(sessionTable.userId, users[0].id));
     expect(sessions.length).toBeGreaterThanOrEqual(1);
+    expect(sendVerificationEmail).toHaveBeenCalled(); // Verify email sent
+
+  }, {
+    timeout: 50000
   });
 });
