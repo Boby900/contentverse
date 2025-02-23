@@ -22,6 +22,27 @@
       "when": 1739671928774,
       "tag": "0002_lyrical_jamie_braddock",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1739861897596,
+      "tag": "0003_black_jackpot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1739862594589,
+      "tag": "0004_hard_captain_midlands",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1739884625695,
+      "tag": "0005_acoustic_susan_delgado",
+      "breakpoints": true
     }
   ]
 }

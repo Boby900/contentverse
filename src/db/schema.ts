@@ -16,7 +16,11 @@ export const userTable = pgTable("user", {
     withTimezone: true,
     mode: "date",
   }).defaultNow(),
-  role: roleEnum("role").default('viewer').notNull(),  // Add role field
+  role: roleEnum("role").default('viewer').notNull(),  
+  email_verified: timestamp("email_verified", {
+    withTimezone: true,
+    mode: "date",
+  }), // New column to track email verification
 });
 
 export const sessionTable = pgTable("session", {
@@ -56,6 +60,19 @@ export const collectionMetadataTable = pgTable("collection_metadata", {
     mode: "date",
   }).defaultNow(),
 });
+
+export const emailVerificationTable = pgTable("email_verification", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => userTable.id, { onDelete: "cascade" })
+    .unique(),
+  otp: text("otp").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).defaultNow(),
+});
+
+export type EmailVerification = InferSelectModel<typeof emailVerificationTable>;
 export type Collection_MetaData = InferSelectModel<typeof collectionMetadataTable>
 export type User = InferSelectModel<typeof userTable>;
 export type Session = InferSelectModel<typeof sessionTable>;

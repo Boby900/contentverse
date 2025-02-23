@@ -25,9 +25,9 @@ describe("test case for the signup endpoint", () => {
     };
     const response = await request(app).post("/api/auth/signup").send(payload);
     expect(response.body).toEqual({
-      message: "User registered successfully",
+      message: "Verification email sent.",
     });
-    expect(response.status).toBe(201);
+    expect(response.status).toBe(200);
   });
   it("should error out when either email or password is missing", async () => {
     const payload = {
