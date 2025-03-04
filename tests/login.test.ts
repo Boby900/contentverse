@@ -91,6 +91,6 @@ describe("test case for the login and email verification endpoint", () => {
     expect(sendVerificationEmail).toHaveBeenCalled(); // Verify email sent
 
   }, {
-    timeout: 50000
+    timeout: 5000
   });
 });
