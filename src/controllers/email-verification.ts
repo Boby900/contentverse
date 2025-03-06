@@ -4,6 +4,7 @@ import { generateRandomOTP } from "../utils/otpUtils.js";
 import { eq } from "drizzle-orm";
 import { Request, Response } from "express";
 import { emailVerificationTable, userTable } from "../db/schema.js";
+import sendWelcomeEmail from "../utils/welcome-email.js";
 
 // Send Verification Email
 export async function sendVerificationEmail(req: Request, res: Response, userId: string) {
@@ -84,6 +85,11 @@ export async function verifyEmailCode(req: Request, res: Response) {
   await db
     .delete(emailVerificationTable)
     .where(eq(emailVerificationTable.userId, user.id));
-
-  res.status(200).json({ message: "Email verified successfully." });
+    try {
+      await sendWelcomeEmail(email); 
+      res.status(200).json({ message: "Email verified successfully. Welcome email sent." });
+  } catch (error) {
+      console.error("Error sending welcome email:", error);
+      res.status(200).json({ message: "Email verified successfully, but welcome email failed." }); // still send a 200, so the client knows it was verified.
+  }
 }
