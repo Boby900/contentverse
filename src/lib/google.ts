@@ -1,7 +1,7 @@
 import { Google } from "arctic";
 const redirectUrl =
   process.env.NODE_ENV === "production"
-    ? "https://contentverse-production.up.railway.app/api/auth/google/login/callback"
+    ? "https://contentverse-ohph.onrender.com/api/auth/google/login/callback"
     : "http://localhost:3000/api/auth/google/login/callback";
 export const google = new Google(
 	process.env.GOOGLE_CLIENT_ID!,
