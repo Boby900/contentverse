@@ -21,7 +21,7 @@ export const userTable = pgTable("user", {
 
 // SESSIONS
 export const sessionTable = pgTable("session", {
-  id: uuid("id").default(sql`gen_random_uuid()`).primaryKey().notNull(),
+  id: text("id").primaryKey().notNull(),
   userId: uuid("user_id").notNull().references(() => userTable.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at", { withTimezone: true, mode: "date" }).notNull(),
 });
