@@ -1,9 +1,11 @@
-import { pgTable, text, pgEnum, timestamp, uuid } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, pgEnum, integer, timestamp, uuid } from "drizzle-orm/pg-core";
 import type { InferSelectModel } from "drizzle-orm";
+import { sql } from "drizzle-orm";
+
 export const roleEnum = pgEnum('role', ['admin', 'viewer']);
 
 export const userTable = pgTable("user", {
-  id: uuid("id").primaryKey(),
+  id: uuid("id").default(sql`gen_random_uuid()`).primaryKey().notNull(),
   email: text("email").unique(),
   password: text("password"),
   githubId: text("github_id"),
@@ -22,7 +24,7 @@ export const userTable = pgTable("user", {
 });
 
 export const sessionTable = pgTable("session", {
-  id: uuid("id").primaryKey(),
+  id: text("id").primaryKey(),
   userId: uuid("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
@@ -33,7 +35,7 @@ export const sessionTable = pgTable("session", {
 });
 
 export const ipFailureTable = pgTable("ip", {
-  id: uuid('id').primaryKey(),
+  id: serial('id').primaryKey(),
   reason: text("reason"), // Reason for failure
   ip_address: text("ip_address").notNull(),
   createdAt: timestamp("created_at", {
@@ -47,7 +49,7 @@ export const ipFailureTable = pgTable("ip", {
 });
 
 export const collectionMetadataTable = pgTable("collection_metadata", {
-  id: uuid("id").primaryKey(),
+  id: serial("id").primaryKey(),
   userId: uuid("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
@@ -60,7 +62,7 @@ export const collectionMetadataTable = pgTable("collection_metadata", {
 });
 
 export const emailVerificationTable = pgTable("email_verification", {
-  id: uuid("id").primaryKey(),
+  id: serial("id").primaryKey(),
   userId: uuid("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" })

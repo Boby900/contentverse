@@ -1,6 +1,6 @@
 {
-  "id": "2d4f8547-53a9-4f98-beb8-950e192e2d95",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "0f1d3de7-c51d-4368-a544-9fe22ad17ec6",
+  "prevId": "9faf248f-ee5e-4caa-978c-fb38fd2eabac",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -62,51 +62,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.content": {
-      "name": "content",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "content_user_id_user_id_fk": {
-          "name": "content_user_id_user_id_fk",
-          "tableFrom": "content",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.ip": {
       "name": "ip",
       "schema": "",
@@ -145,69 +100,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.media": {
-      "name": "media",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "pinata_id": {
-          "name": "pinata_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cid": {
-          "name": "cid",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "mime_type": {
-          "name": "mime_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_pinata_id": {
-          "name": "user_pinata_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "media_user_id_user_id_fk": {
-          "name": "media_user_id_user_id_fk",
-          "tableFrom": "media",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -312,6 +204,14 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "role": {
+          "name": "role",
+          "type": "role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'viewer'"
         }
       },
       "indexes": {},
@@ -331,7 +231,16 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.role": {
+      "name": "role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "viewer"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},
