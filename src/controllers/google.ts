@@ -109,7 +109,7 @@ type GoogleIdTokenClaims = {
       const sessionToken = generateSessionToken();
       const session = await createSession(sessionToken, user[0].id);
       if (!session) {
-        res.status(500).json("some error while creating the session for the new GH user.");
+        res.status(500).json("some error while creating the session for the new Google user.");
         return;
       }
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);

@@ -53,7 +53,10 @@ export const githubCallBack = async (
       .where(eq(userTable.githubId, githubUserId));
   
       if (existingUser.length >= 1) {
+        console.log("existingUser[0].id", existingUser[0].id);
+
         const sessionToken = generateSessionToken();
+        console.log("sessionToken", sessionToken);
         const session = await createSession(sessionToken, existingUser[0].id);
         if (!session) {
           res.status(500).json("some error while creating the session for the GH.");
@@ -72,10 +75,13 @@ export const githubCallBack = async (
       .insert(userTable)
       .values({ githubId: githubUserId, username: githubUsername })
       .returning({id: userTable.id})
+      console.log("user[0].id", user[0].id);
       const sessionToken = generateSessionToken();
+      console.log("sessionToken", sessionToken);
+
       const session = await createSession(sessionToken, user[0].id);
       if (!session) {
-        res.status(500).json("some error while creating the session for the new GH user.");
+        res.status(500).json("some error while creating the session for the new Github user.");
         return;
       }
       await setSessionTokenCookie(res, sessionToken, session.expiresAt);
