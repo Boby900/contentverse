@@ -29,6 +29,14 @@ git clone https://github.com/Boby900/contentverse
 ```
 .env .env.local
 ```
+```
+DATABASE_URL 
+RESEND_API_KEY 
+GOOGLE_CLIENT_ID 
+GOOGLE_CLIENT_SECRET 
+GITHUB_CLIENT_ID 
+GITHUB_CLIENT_SECRET 
+```
 
 <p>3. Install dependencies</p>
 
