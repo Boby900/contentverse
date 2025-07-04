@@ -4,7 +4,8 @@ import { r2 } from "../lib/r2";
 
 export const uploadToR2 = async (req: Request, res: Response) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    res.status(400).json({ error: "No file uploaded" });
+    return 
   }
 
   const bucket = "<your-bucket-name>"; // Replace with your R2 bucket name
