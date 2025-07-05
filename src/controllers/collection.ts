@@ -143,17 +143,19 @@ export const deleteCollections = async (req: Request, res: Response) => {
       res.status(400).json({ error: "User ID and collectionID is required" });
       return;
     }
-    const collectionIDAsNumber = parseInt(collectionID, 10); // Adjust type conversion based on schema
-    if (isNaN(collectionIDAsNumber)) {
-      res.status(400).json({ error: "Invalid collectionID format" });
+    
+    // Validate UUID format instead of converting to number
+    if (!collectionID.match(/^[0-9a-fA-F-]{36}$/)) {
+      res.status(400).json({ error: "Invalid UUID format" });
       return;
     }
+
     await db
       .delete(collectionMetadataTable)
       .where(
         and(
           eq(collectionMetadataTable.userId, userId),
-          eq(collectionMetadataTable.id, collectionIDAsNumber)
+          eq(collectionMetadataTable.id, collectionID)
         )
       );
 
@@ -233,14 +235,20 @@ export const getCollectionsByID = async (req: Request, res: Response) => {
       return;
     }
 
-    // Fetch metadata for the collection
+    // Validate UUID format instead of converting to number
+    if (!collectionID.match(/^[0-9a-fA-F-]{36}$/)) {
+      res.status(400).json({ error: "Invalid UUID format" });
+      return;
+    }
+
+    // Use the UUID string directly
     const metadata = await db
       .select()
       .from(collectionMetadataTable)
       .where(
         and(
           eq(collectionMetadataTable.userId, userId),
-          eq(collectionMetadataTable.id, collectionIDAsNumber)
+          eq(collectionMetadataTable.id, collectionID)
         )
       );
 
