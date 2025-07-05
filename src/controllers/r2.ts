@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { r2 } from "../lib/r2";
+import { r2 } from "../lib/r2.js";
 
 export const uploadToR2 = async (req: Request, res: Response) => {
   if (!req.file) {
