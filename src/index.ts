@@ -8,6 +8,7 @@ import mainRoutes from "./routes/main.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.js";
 import cookieParser from "cookie-parser";
+import r2Routes from "./routes/r2.js";
 import collectionRoutes from "./routes/collection.js";
 
 import { limiter } from "./lib/express-rate-liimiter.js";
@@ -33,6 +34,7 @@ app.use(express.json()); // Parse JSON bodies
 app.use(cookieParser());
 app.use(cors(corsOptions));
 // Set up routes
+app.use("/api/r2", r2Routes);
 app.use("/api", mainRoutes);
 app.use("/api/auth", limiter, authRoutes);
 app.use("/api/collection", collectionRoutes);
