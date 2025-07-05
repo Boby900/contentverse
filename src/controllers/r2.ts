@@ -8,7 +8,7 @@ export const uploadToR2 = async (req: Request, res: Response) => {
     return 
   }
 
-  const bucket = "<your-bucket-name>"; // Replace with your R2 bucket name
+  const bucket = "my-upload"; // Replace with your R2 bucket name
   const key = req.file.originalname; // Or generate a unique name
 
   try {
